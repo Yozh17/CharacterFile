@@ -14,7 +14,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { min-height: 100vh; font-family: 'Playfair Display', 'Georgia', serif; padding: 20px; transition: all 0.5s ease; display: flex; justify-content: center; align-items: center; }
         
-        /* --- ТЕМА: САПФИР --- */
+        /* --- ТЕМЫ (САПФИР, ПЕРГАМЕНТ, ЖЕМЧУГ, СВОЯ) --- */
         body.theme-sapphire { background: linear-gradient(145deg, #080c1a 0%, #0e1a35 40%, #0a1225 100%); color: #D4AF37; }
         body.theme-sapphire .container { background: rgba(8, 18, 35, 0.92); backdrop-filter: blur(8px); border: 1px solid rgba(212, 175, 55, 0.3); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(212, 175, 55, 0.1); }
         body.theme-sapphire .form-control input, body.theme-sapphire .form-control textarea { background: rgba(10, 20, 40, 0.8); border: 1px solid rgba(212, 175, 55, 0.2); color: #D4AF37; }
@@ -33,7 +33,6 @@
         body.theme-sapphire .import-export-row .ie-btn.export-json { color: #88ccff; border-color: #4488cc; }
         body.theme-sapphire .import-export-row .ie-btn.import-json { color: #88ffaa; border-color: #44aa66; }
 
-        /* --- ТЕМА: ПЕРГАМЕНТ --- */
         body.theme-parchment { background: #d8c8a8; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23d8c8a8"/><path d="M10 10 L90 10 L95 90 L5 90 Z" fill="%23cbb895" opacity="0.3"/><circle cx="30" cy="40" r="2" fill="%23b8a080" opacity="0.5"/><circle cx="70" cy="60" r="1.5" fill="%23b8a080" opacity="0.5"/><circle cx="50" cy="80" r="2.5" fill="%23b8a080" opacity="0.4"/></svg>'); color: #1a1008; }
         body.theme-parchment .container { background: rgba(235, 215, 180, 0.92); backdrop-filter: blur(4px); border: 2px solid #8a7a5a; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 0 50px rgba(160, 130, 80, 0.2); }
         body.theme-parchment .form-control input, body.theme-parchment .form-control textarea { background: rgba(245, 235, 210, 0.8); border: 1px solid #8a7a5a; color: #1a1008; }
@@ -52,7 +51,6 @@
         body.theme-parchment .import-export-row .ie-btn.export-json { color: #2a4a7a; border-color: #2a4a7a; }
         body.theme-parchment .import-export-row .ie-btn.import-json { color: #1a4a3a; border-color: #1a4a3a; }
 
-        /* --- ТЕМА: ЖЕМЧУГ --- */
         body.theme-pearl { background: #f0ece4; background-image: radial-gradient(ellipse at 20% 50%, rgba(200, 220, 210, 0.3) 0%, transparent 70%), radial-gradient(ellipse at 80% 50%, rgba(180, 210, 200, 0.2) 0%, transparent 70%); color: #1a4a3a; }
         body.theme-pearl .container { background: rgba(248, 245, 240, 0.92); backdrop-filter: blur(4px); border: 1px solid rgba(26, 74, 58, 0.2); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08), inset 0 0 80px rgba(200, 220, 210, 0.1); }
         body.theme-pearl .form-control input, body.theme-pearl .form-control textarea { background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(26, 74, 58, 0.15); color: #1a4a3a; }
@@ -80,7 +78,6 @@
         body.theme-pearl .import-export-row .ie-btn.export-json { color: #2a4a7a; border-color: #2a4a7a; }
         body.theme-pearl .import-export-row .ie-btn.import-json { color: #1a4a3a; border-color: #1a4a3a; }
 
-        /* --- ТЕМА: СВОЯ --- */
         body.theme-custom { background: #1a1a2e; color: #ffffff; }
         body.theme-custom .container { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); }
         body.theme-custom .form-control input, body.theme-custom .form-control textarea { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: inherit; }
@@ -133,7 +130,6 @@
         .header .sub { font-style: italic; font-size: 0.95rem; letter-spacing: 2px; opacity: 0.7; margin-top: 2px; }
         .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 20px; min-height: 600px; }
         
-        /* --- АДАПТИВНАЯ КАРТИНКА В ПРЕВЬЮ --- */
         .photo-cell { border-radius: 20px; overflow: hidden; position: relative; min-height: 500px; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(212, 175, 55, 0.1); }
         .photo-cell .photo-container { width: 100%; height: 100%; min-height: 500px; display: flex; align-items: center; justify-content: center; position: relative; background: rgba(0, 0, 0, 0.1); }
         .photo-cell .photo-container img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
@@ -202,15 +198,44 @@
         .import-export-row .ie-btn.export-json { color: #88ccff; border-color: #4488cc; }
         .import-export-row .ie-btn.import-json { color: #88ffaa; border-color: #44aa66; }
 
-        /* --- МОБИЛЬНАЯ АДАПТАЦИЯ (исправленная) --- */
+        /* --- МОБИЛЬНАЯ АДАПТАЦИЯ (исправленная — фото вертикальное) --- */
         @media (max-width: 850px) {
             .container { padding: 20px; }
-            .card-grid { grid-template-columns: 1fr; gap: 20px; min-height: auto; }
+            .card-grid { 
+                grid-template-columns: 1fr; 
+                gap: 20px; 
+                min-height: auto; 
+            }
             
-            /* Фото на мобильных — нормальная высота */
-            .photo-cell { min-height: 300px; max-height: 400px; }
-            .photo-cell .photo-container { min-height: 300px; max-height: 400px; }
-            .photo-cell .photo-container img { width: 100%; height: 100%; object-fit: cover; }
+            /* Фото на мобильных — сохраняем вертикальные пропорции 2:3 */
+            .photo-cell { 
+                min-height: auto; 
+                max-height: none;
+                aspect-ratio: 2 / 3;
+                width: 100%;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+            .photo-cell .photo-container { 
+                min-height: auto; 
+                max-height: none;
+                width: 100%;
+                height: 100%;
+            }
+            .photo-cell .photo-container img { 
+                width: 100%; 
+                height: 100%; 
+                object-fit: cover;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+            .photo-cell .photo-container .no-photo {
+                font-size: 40px;
+            }
+            .photo-cell .photo-container .no-photo span {
+                font-size: 12px;
+            }
             
             .field-row { grid-template-columns: 1fr; gap: 4px; }
             .label-cell { text-align: left; font-size: 0.8rem; padding-top: 2px; }
@@ -220,15 +245,15 @@
             .custom-colors label { font-size: 0.75rem; }
             .custom-colors input[type="color"] { width: 32px; height: 32px; }
         }
-        
+
         @media (max-width: 500px) {
             body { padding: 10px; }
             .container { padding: 15px; border-radius: 20px; }
             
-            /* Фото на очень маленьких экранах */
-            .photo-cell { min-height: 200px; max-height: 280px; }
-            .photo-cell .photo-container { min-height: 200px; max-height: 280px; }
-            .photo-cell .photo-container img { width: 100%; height: 100%; object-fit: cover; }
+            .photo-cell { 
+                aspect-ratio: 2 / 3;
+                max-width: 320px;
+            }
             
             .photo-cell .photo-overlay { bottom: 10px; padding: 4px 10px; }
             .photo-cell .photo-overlay button { font-size: 0.65rem; padding: 3px 8px; }
@@ -238,13 +263,6 @@
             .theme-switcher .theme-btn { padding: 6px 12px; font-size: 0.7rem; }
             .import-export-row { flex-direction: column; }
             .custom-colors { flex-direction: column; gap: 8px; }
-        }
-
-        /* Отдельно для очень широких картинок — сохраняем пропорции */
-        .photo-cell .photo-container img {
-            object-fit: cover;
-            width: 100%;
-            height: 100%;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js">
@@ -262,14 +280,8 @@
         </div>
 
         <div class="custom-colors" id="customColors" style="display:none;">
-            <label>
-                🎨 Фон
-                <input type="color" id="customBgColor" value="#1a1a2e">
-            </label>
-            <label>
-                ✏️ Шрифт
-                <input type="color" id="customTextColor" value="#ffffff">
-            </label>
+            <label>🎨 Фон <input type="color" id="customBgColor" value="#1a1a2e"></label>
+            <label>✏️ Шрифт <input type="color" id="customTextColor" value="#ffffff"></label>
         </div>
 
         <div class="header">
@@ -280,10 +292,7 @@
         <div class="card-grid">
             <div class="photo-cell">
                 <div class="photo-container" id="photoContainer">
-                    <div class="no-photo">
-                        📷
-                        <span>загрузите фото</span>
-                    </div>
+                    <div class="no-photo">📷<span>загрузите фото</span></div>
                 </div>
                 <div class="photo-overlay">
                     <input type="file" id="photoUpload" accept="image/*" style="display:none">
@@ -295,42 +304,16 @@
 
             <div class="fields-cell">
                 <div class="section-title">▸ ЛИЧНОЕ</div>
-                
-                <div class="field-row">
-                    <div class="label-cell">Имя</div>
-                    <div class="form-control"><input type="text" id="name" placeholder="Имя персонажа"></div>
-                </div>
-                <div class="field-row">
-                    <div class="label-cell">Возраст</div>
-                    <div class="form-control"><input type="text" id="age" placeholder="17, 243, бессмертен"></div>
-                </div>
-                <div class="field-row">
-                    <div class="label-cell">Вид</div>
-                    <div class="form-control"><input type="text" id="species" placeholder="Человек, эльф, вампир..."></div>
-                </div>
-                <div class="field-row">
-                    <div class="label-cell">Пол</div>
-                    <div class="form-control"><input type="text" id="gender" placeholder="М, Ж, небинарный..."></div>
-                </div>
-                <div class="field-row">
-                    <div class="label-cell">Занятие</div>
-                    <div class="form-control"><input type="text" id="job" placeholder="Пират, детектив, маг..."></div>
-                </div>
+                <div class="field-row"><div class="label-cell">Имя</div><div class="form-control"><input type="text" id="name" placeholder="Имя персонажа"></div></div>
+                <div class="field-row"><div class="label-cell">Возраст</div><div class="form-control"><input type="text" id="age" placeholder="17, 243, бессмертен"></div></div>
+                <div class="field-row"><div class="label-cell">Вид</div><div class="form-control"><input type="text" id="species" placeholder="Человек, эльф, вампир..."></div></div>
+                <div class="field-row"><div class="label-cell">Пол</div><div class="form-control"><input type="text" id="gender" placeholder="М, Ж, небинарный..."></div></div>
+                <div class="field-row"><div class="label-cell">Занятие</div><div class="form-control"><input type="text" id="job" placeholder="Пират, детектив, маг..."></div></div>
 
                 <div class="section-title">▸ ХАРАКТЕР</div>
-                
-                <div class="field-row">
-                    <div class="label-cell">Характер</div>
-                    <div class="form-control"><input type="text" id="personality" placeholder="Вспыльчивый, меланхоличный..."></div>
-                </div>
-                <div class="field-row">
-                    <div class="label-cell">Преимущества</div>
-                    <div class="form-control"><textarea id="strengths" placeholder="Храбрость, ум, верность..." style="min-height:40px;"></textarea></div>
-                </div>
-                <div class="field-row">
-                    <div class="label-cell">Слабость</div>
-                    <div class="form-control"><textarea id="weaknesses" placeholder="Доверчивость, гордыня..." style="min-height:40px;"></textarea></div>
-                </div>
+                <div class="field-row"><div class="label-cell">Характер</div><div class="form-control"><input type="text" id="personality" placeholder="Вспыльчивый, меланхоличный..."></div></div>
+                <div class="field-row"><div class="label-cell">Преимущества</div><div class="form-control"><textarea id="strengths" placeholder="Храбрость, ум, верность..." style="min-height:40px;"></textarea></div></div>
+                <div class="field-row"><div class="label-cell">Слабость</div><div class="form-control"><textarea id="weaknesses" placeholder="Доверчивость, гордыня..." style="min-height:40px;"></textarea></div></div>
 
                 <div class="section-title">▸ СПОСОБНОСТИ</div>
                 <div class="form-control" style="margin-top: 4px;"><textarea id="skills" placeholder="Особые навыки, таланты..." style="min-height:40px;"></textarea></div>
@@ -349,9 +332,7 @@
         <div class="slots-panel">
             <div class="slots-title">💾 СОХРАНЁННЫЕ ПЕРСОНАЖИ</div>
             <div id="slotsContainer"></div>
-            <div style="margin-top: 6px; font-size: 0.7rem; opacity:0.4; letter-spacing:0.5px;">
-                💡 Нажмите «Сохранить» чтобы записать персонажа, «Открыть» чтобы загрузить
-            </div>
+            <div style="margin-top: 6px; font-size: 0.7rem; opacity:0.4; letter-spacing:0.5px;">💡 Нажмите «Сохранить» чтобы записать персонажа, «Открыть» чтобы загрузить</div>
         </div>
 
         <div class="import-export-row">
@@ -369,9 +350,7 @@
     </div>
 
     <div class="crop-modal" id="cropModal">
-        <div class="crop-wrapper">
-            <img id="cropImage" src="" alt="Обрезка">
-        </div>
+        <div class="crop-wrapper"><img id="cropImage" src="" alt="Обрезка"></div>
         <div class="crop-controls">
             <button class="crop-confirm" id="cropConfirm">✅ Применить</button>
             <button class="crop-cancel" id="cropCancel">❌ Отмена</button>
