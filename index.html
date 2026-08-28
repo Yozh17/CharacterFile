@@ -280,21 +280,19 @@
                 <!-- ЛИЧНОЕ -->
                 <div class="section-title">▸ ЛИЧНОЕ</div>
                 
-                <div class="field-row two-col">
-                    <div class="sub-row">
+                <!-- Имя — на всю ширину -->
+                <div class="field-row full-width">
+                    <div class="sub-row" style="grid-template-columns: 70px 1fr;">
                         <div class="label-cell">Имя</div>
                         <div class="form-control"><input type="text" id="name" placeholder="Имя персонажа"></div>
                     </div>
+                </div>
+                
+                <!-- Возраст | Пол — в две колонки -->
+                <div class="field-row two-col">
                     <div class="sub-row">
                         <div class="label-cell">Возраст</div>
                         <div class="form-control"><input type="text" id="age" placeholder="17, 243..."></div>
-                    </div>
-                </div>
-                
-                <div class="field-row two-col">
-                    <div class="sub-row">
-                        <div class="label-cell">Вид</div>
-                        <div class="form-control"><input type="text" id="species" placeholder="Человек, эльф..."></div>
                     </div>
                     <div class="sub-row">
                         <div class="label-cell">Пол</div>
@@ -302,6 +300,15 @@
                     </div>
                 </div>
                 
+                <!-- Вид — на всю ширину -->
+                <div class="field-row full-width">
+                    <div class="sub-row" style="grid-template-columns: 70px 1fr;">
+                        <div class="label-cell">Вид</div>
+                        <div class="form-control"><input type="text" id="species" placeholder="Человек, эльф..."></div>
+                    </div>
+                </div>
+                
+                <!-- Занятие — на всю ширину -->
                 <div class="field-row full-width">
                     <div class="sub-row" style="grid-template-columns: 70px 1fr;">
                         <div class="label-cell">Занятие</div>
@@ -1123,16 +1130,30 @@
                     <div class="section-title">▸ ЛИЧНОЕ</div>
                     <table class="fields-table" cellpadding="0" cellspacing="0">
                         <tr>
-                            <td class="label-col">Имя</td>
-                            <td class="value-col">${preserveParagraphs(d.name)}</td>
-                            <td style="width:70px; padding:3px 12px 3px 0; font-weight:700; color:${labelColor}; text-align:left; white-space:nowrap; vertical-align:top;">Возраст</td>
-                            <td class="value-col">${preserveParagraphs(d.age)}</td>
+                            <td colspan="4" style="padding:3px 0;">
+                                <table style="width:100%; border-collapse:collapse;">
+                                    <tr>
+                                        <td style="width:70px; padding:3px 12px 3px 0; font-weight:700; color:${labelColor}; text-align:left; vertical-align:top; white-space:nowrap;">Имя</td>
+                                        <td style="padding:3px 0; word-break:break-word; white-space:pre-wrap; vertical-align:top;">${preserveParagraphs(d.name)}</td>
+                                    </tr>
+                                </table>
+                            </td>
                         </tr>
                         <tr>
-                            <td class="label-col">Вид</td>
-                            <td class="value-col">${preserveParagraphs(d.species)}</td>
+                            <td style="width:70px; padding:3px 12px 3px 0; font-weight:700; color:${labelColor}; text-align:left; white-space:nowrap; vertical-align:top;">Возраст</td>
+                            <td style="padding:3px 0; word-break:break-word; white-space:pre-wrap; vertical-align:top;">${preserveParagraphs(d.age)}</td>
                             <td style="width:70px; padding:3px 12px 3px 0; font-weight:700; color:${labelColor}; text-align:left; white-space:nowrap; vertical-align:top;">Пол</td>
-                            <td class="value-col">${preserveParagraphs(d.gender)}</td>
+                            <td style="padding:3px 0; word-break:break-word; white-space:pre-wrap; vertical-align:top;">${preserveParagraphs(d.gender)}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="padding:3px 0;">
+                                <table style="width:100%; border-collapse:collapse;">
+                                    <tr>
+                                        <td style="width:70px; padding:3px 12px 3px 0; font-weight:700; color:${labelColor}; text-align:left; vertical-align:top; white-space:nowrap;">Вид</td>
+                                        <td style="padding:3px 0; word-break:break-word; white-space:pre-wrap; vertical-align:top;">${preserveParagraphs(d.species)}</td>
+                                    </tr>
+                                </table>
+                            </td>
                         </tr>
                         <tr>
                             <td colspan="4" style="padding:3px 0;">
@@ -1324,18 +1345,13 @@
                 sec1.textContent = '▸ ЛИЧНОЕ';
                 rightHalf.appendChild(sec1);
 
-                // Две колонки: Имя | Возраст
-                const row1 = document.createElement('div');
-                row1.style.display = 'grid';
-                row1.style.gridTemplateColumns = '1fr 1fr';
-                row1.style.gap = '12px';
-                row1.style.fontSize = '14px';
-                row1.style.padding = '3px 0';
-                
+                // Имя — на всю ширину
                 const nameRow = document.createElement('div');
                 nameRow.style.display = 'grid';
                 nameRow.style.gridTemplateColumns = '70px 1fr';
                 nameRow.style.gap = '6px';
+                nameRow.style.fontSize = '14px';
+                nameRow.style.padding = '3px 0';
                 nameRow.style.alignItems = 'start';
                 const nameLbl = document.createElement('span');
                 nameLbl.style.fontWeight = '700';
@@ -1345,7 +1361,15 @@
                 const nameVal = createTextNode(d.name);
                 nameRow.appendChild(nameLbl);
                 nameRow.appendChild(nameVal);
-                row1.appendChild(nameRow);
+                rightHalf.appendChild(nameRow);
+
+                // Возраст | Пол — в две колонки
+                const rowAgeGender = document.createElement('div');
+                rowAgeGender.style.display = 'grid';
+                rowAgeGender.style.gridTemplateColumns = '1fr 1fr';
+                rowAgeGender.style.gap = '12px';
+                rowAgeGender.style.fontSize = '14px';
+                rowAgeGender.style.padding = '3px 0';
 
                 const ageRow = document.createElement('div');
                 ageRow.style.display = 'grid';
@@ -1360,31 +1384,7 @@
                 const ageVal = createTextNode(d.age);
                 ageRow.appendChild(ageLbl);
                 ageRow.appendChild(ageVal);
-                row1.appendChild(ageRow);
-                rightHalf.appendChild(row1);
-
-                // Две колонки: Вид | Пол
-                const row2 = document.createElement('div');
-                row2.style.display = 'grid';
-                row2.style.gridTemplateColumns = '1fr 1fr';
-                row2.style.gap = '12px';
-                row2.style.fontSize = '14px';
-                row2.style.padding = '3px 0';
-                
-                const speciesRow = document.createElement('div');
-                speciesRow.style.display = 'grid';
-                speciesRow.style.gridTemplateColumns = '70px 1fr';
-                speciesRow.style.gap = '6px';
-                speciesRow.style.alignItems = 'start';
-                const speciesLbl = document.createElement('span');
-                speciesLbl.style.fontWeight = '700';
-                speciesLbl.style.color = labelColor;
-                speciesLbl.style.textAlign = 'left';
-                speciesLbl.textContent = 'Вид';
-                const speciesVal = createTextNode(d.species);
-                speciesRow.appendChild(speciesLbl);
-                speciesRow.appendChild(speciesVal);
-                row2.appendChild(speciesRow);
+                rowAgeGender.appendChild(ageRow);
 
                 const genderRow = document.createElement('div');
                 genderRow.style.display = 'grid';
@@ -1399,10 +1399,28 @@
                 const genderVal = createTextNode(d.gender);
                 genderRow.appendChild(genderLbl);
                 genderRow.appendChild(genderVal);
-                row2.appendChild(genderRow);
-                rightHalf.appendChild(row2);
+                rowAgeGender.appendChild(genderRow);
+                rightHalf.appendChild(rowAgeGender);
 
-                // Занятие (во всю ширину)
+                // Вид — на всю ширину
+                const speciesRow = document.createElement('div');
+                speciesRow.style.display = 'grid';
+                speciesRow.style.gridTemplateColumns = '70px 1fr';
+                speciesRow.style.gap = '6px';
+                speciesRow.style.fontSize = '14px';
+                speciesRow.style.padding = '3px 0';
+                speciesRow.style.alignItems = 'start';
+                const speciesLbl = document.createElement('span');
+                speciesLbl.style.fontWeight = '700';
+                speciesLbl.style.color = labelColor;
+                speciesLbl.style.textAlign = 'left';
+                speciesLbl.textContent = 'Вид';
+                const speciesVal = createTextNode(d.species);
+                speciesRow.appendChild(speciesLbl);
+                speciesRow.appendChild(speciesVal);
+                rightHalf.appendChild(speciesRow);
+
+                // Занятие — на всю ширину
                 const jobRow = document.createElement('div');
                 jobRow.style.display = 'grid';
                 jobRow.style.gridTemplateColumns = '70px 1fr';
