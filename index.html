@@ -858,254 +858,272 @@
             URL.revokeObjectURL(link.href);
         });
 
-        // ============================================================
-        // 9. ЭКСПОРТ .HTML (улучшенный для Word)
-        // ============================================================
-        document.getElementById('exportHtmlBtn').addEventListener('click', () => {
-            const d = getCurrentCharacterData();
-            const isSapphire = document.body.classList.contains('theme-sapphire');
-            const isPearl = document.body.classList.contains('theme-pearl');
-            const isParchment = document.body.classList.contains('theme-parchment');
-            const isCustom = document.body.classList.contains('theme-custom');
+       // ============================================================
+// 9. ЭКСПОРТ .HTML (исправленный для Word)
+// ============================================================
+document.getElementById('exportHtmlBtn').addEventListener('click', () => {
+    const d = getCurrentCharacterData();
+    const isSapphire = document.body.classList.contains('theme-sapphire');
+    const isPearl = document.body.classList.contains('theme-pearl');
+    const isParchment = document.body.classList.contains('theme-parchment');
+    const isCustom = document.body.classList.contains('theme-custom');
 
-            let bgColor, borderColor, titleColor, labelColor, textColor, leftBg;
-            
-            if (isCustom) {
-                bgColor = customBgInput.value;
-                textColor = customTextInput.value;
-                titleColor = textColor;
-                labelColor = textColor;
-                borderColor = textColor + '44';
-                leftBg = bgColor + '80';
-            } else if (isPearl) {
-                bgColor = '#f0ece4';
-                borderColor = '#b8c8b8';
-                titleColor = '#1a4a3a';
-                labelColor = '#1a4a3a';
-                textColor = '#1a4a3a';
-                leftBg = '#e8ece4';
-            } else if (isParchment) {
-                bgColor = '#d8c8a8';
-                borderColor = '#8a7a5a';
-                titleColor = '#2a1a0a';
-                labelColor = '#3a2a1a';
-                textColor = '#1a1008';
-                leftBg = '#b8a080';
-            } else {
-                bgColor = '#0a1225';
-                borderColor = '#4a3a1a';
-                titleColor = '#D4AF37';
-                labelColor = '#D4AF37';
-                textColor = '#D4AF37';
-                leftBg = '#0a1a2a';
-            }
+    let bgColor, borderColor, titleColor, labelColor, textColor, leftBg;
+    
+    if (isCustom) {
+        bgColor = customBgInput.value;
+        textColor = customTextInput.value;
+        titleColor = textColor;
+        labelColor = textColor;
+        borderColor = textColor + '44';
+        leftBg = bgColor + '80';
+    } else if (isPearl) {
+        bgColor = '#f0ece4';
+        borderColor = '#b8c8b8';
+        titleColor = '#1a4a3a';
+        labelColor = '#1a4a3a';
+        textColor = '#1a4a3a';
+        leftBg = '#e8ece4';
+    } else if (isParchment) {
+        bgColor = '#d8c8a8';
+        borderColor = '#8a7a5a';
+        titleColor = '#2a1a0a';
+        labelColor = '#3a2a1a';
+        textColor = '#1a1008';
+        leftBg = '#b8a080';
+    } else {
+        bgColor = '#0a1225';
+        borderColor = '#4a3a1a';
+        titleColor = '#D4AF37';
+        labelColor = '#D4AF37';
+        textColor = '#D4AF37';
+        leftBg = '#0a1a2a';
+    }
 
-            // Фото вставляем как обычный IMG
-            let photoHtml = '';
-            if (photoDataUrl) {
-                photoHtml = `<img src="${photoDataUrl}" style="width:100%; max-width:350px; height:auto; border-radius:12px; display:block;" alt="фото">`;
-            } else {
-                photoHtml = `<div style="display:flex;align-items:center;justify-content:center;width:100%;max-width:350px;height:300px;font-size:60px;opacity:0.15;background:${leftBg};border-radius:12px;">📷</div>`;
-            }
+    // Фото
+    let photoHtml = '';
+    if (photoDataUrl) {
+        photoHtml = `<img src="${photoDataUrl}" style="width:100%; max-width:350px; height:auto; border-radius:12px; display:block;" alt="фото">`;
+    } else {
+        photoHtml = `<div style="display:flex;align-items:center;justify-content:center;width:100%;max-width:350px;height:300px;font-size:60px;opacity:0.15;background:${leftBg};border-radius:12px;">📷</div>`;
+    }
 
-            function preserveParagraphs(text) {
-                if (!text) return '—';
-                return text.replace(/\n/g, '<br>');
-            }
+    function preserveParagraphs(text) {
+        if (!text) return '—';
+        return text.replace(/\n/g, '<br>');
+    }
 
-            const docHtml = `<!DOCTYPE html>
-        <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-            <!--[if gte mso 9]>
-            <xml>
-                <w:WordDocument>
-                    <w:View>Print</w:View>
-                    <w:Zoom>100</w:Zoom>
-                </w:WordDocument>
-            </xml>
-            <![endif]-->
-            <title>Карточка персонажа</title>
-            <style>
-                /* --- Стили для Word и браузера --- */
-                body { 
-                    font-family: 'Georgia', 'Times New Roman', serif; 
-                    background: ${bgColor}; 
-                    color: ${textColor}; 
-                    margin: 0;
-                    padding: 40px 20px;
-                }
-                .card-table {
-                    width: 100%;
-                    max-width: 900px;
-                    margin: 0 auto;
-                    background: ${bgColor};
-                    border-radius: 30px;
-                    border-collapse: collapse;
-                    overflow: hidden;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-                }
-                .card-table td {
-                    padding: 0;
-                    vertical-align: top;
-                }
-                .left-cell {
-                    width: 50%;
-                    background: ${leftBg};
-                    padding: 20px;
-                    text-align: center;
-                    vertical-align: middle;
-                }
-                .right-cell {
-                    width: 50%;
-                    padding: 25px 28px;
-                    vertical-align: top;
-                }
-                .title { 
-                    font-size: 26px; 
-                    font-weight: 700; 
-                    color: ${titleColor}; 
-                    border-bottom: 2px solid ${borderColor}; 
-                    padding-bottom: 10px; 
-                    margin-bottom: 12px; 
-                    letter-spacing: 6px; 
-                }
-                .section-title { 
-                    font-size: 14px; 
-                    font-weight: 700; 
-                    color: ${titleColor}; 
-                    letter-spacing: 3px; 
-                    margin-top: 10px; 
-                    border-bottom: 1px solid ${borderColor}; 
-                    padding-bottom: 4px; 
-                    opacity: 0.7; 
-                }
-                .field { 
-                    display: grid; 
-                    grid-template-columns: 110px 1fr; 
-                    gap: 12px; 
-                    font-size: 14px; 
-                    padding: 3px 0; 
-                }
-                .lbl { 
-                    font-weight: 700; 
-                    color: ${labelColor}; 
-                    text-align: right; 
-                }
-                .val { 
-                    word-break: break-word; 
-                    white-space: pre-wrap; 
-                }
-                .quote { 
-                    font-style: italic; 
-                    font-size: 17px; 
-                    border-left: 3px solid ${borderColor}; 
-                    padding-left: 18px; 
-                    margin: 8px 0; 
-                    white-space: pre-wrap; 
-                }
-                .history { 
-                    margin-top: 8px; 
-                    padding-top: 10px; 
-                    border-top: 1px solid ${borderColor}; 
-                    font-size: 13px; 
-                    white-space: pre-wrap; 
-                }
-                .footer { 
-                    text-align: center; 
-                    padding: 15px; 
-                    font-size: 12px; 
-                    opacity: 0.5; 
-                    border-top: 1px solid ${borderColor}; 
-                    font-style: italic; 
-                    letter-spacing: 1px; 
-                }
-                .photo-wrap {
-                    width: 100%;
-                    max-width: 350px;
-                    margin: 0 auto;
-                    border-radius: 12px;
-                    overflow: hidden;
-                }
-                .photo-wrap img {
-                    width: 100%;
-                    height: auto;
-                    display: block;
-                    border-radius: 12px;
-                }
-                /* Для мобильных */
-                @media (max-width: 600px) {
-                    .left-cell, .right-cell {
-                        width: 100%;
-                        display: block;
-                    }
-                    .field {
-                        grid-template-columns: 1fr;
-                        gap: 2px;
-                    }
-                    .lbl {
-                        text-align: left;
-                    }
-                }
-                /* Специально для Word */
-                .card-table {
-                    mso-table-lspace: 0;
-                    mso-table-rspace: 0;
-                    border-collapse: collapse;
-                }
-            </style>
-        </head>
-        <body>
-
-        <table class="card-table" cellpadding="0" cellspacing="0">
+    // Функция для создания строки с двумя колонками (через таблицу)
+    function createFieldRow(label, value) {
+        return `
             <tr>
-                <td class="left-cell">
-                    <div class="photo-wrap">
-                        ${photoHtml}
-                    </div>
-                </td>
-                <td class="right-cell">
-                    <div class="title">⚓ ФИКБУХТА</div>
-                    
-                    <div class="section-title">▸ ЛИЧНОЕ</div>
-                    <div class="field"><span class="lbl">Имя</span><span class="val">${preserveParagraphs(d.name)}</span></div>
-                    <div class="field"><span class="lbl">Возраст</span><span class="val">${preserveParagraphs(d.age)}</span></div>
-                    <div class="field"><span class="lbl">Вид</span><span class="val">${preserveParagraphs(d.species)}</span></div>
-                    <div class="field"><span class="lbl">Пол</span><span class="val">${preserveParagraphs(d.gender)}</span></div>
-                    <div class="field"><span class="lbl">Занятие</span><span class="val">${preserveParagraphs(d.job)}</span></div>
-                    
-                    <div class="section-title">▸ ХАРАКТЕР</div>
-                    <div class="field"><span class="lbl">Характер</span><span class="val">${preserveParagraphs(d.personality)}</span></div>
-                    <div class="field"><span class="lbl">Преимущества</span><span class="val">${preserveParagraphs(d.strengths)}</span></div>
-                    <div class="field"><span class="lbl">Слабость</span><span class="val">${preserveParagraphs(d.weaknesses)}</span></div>
-                    
-                    <div class="section-title">▸ СПОСОБНОСТИ</div>
-                    <div class="val" style="padding: 3px 0 3px 0;">${preserveParagraphs(d.skills)}</div>
-                    
-                    <div class="section-title">▸ БЛИЗКИЕ</div>
-                    <div class="val" style="padding: 3px 0 3px 0;">${preserveParagraphs(d.family)}</div>
-                    
-                    <div class="quote">${preserveParagraphs(d.quote)}</div>
-                    <div class="history"><b>История:</b> ${preserveParagraphs(d.backstory)}</div>
-                </td>
+                <td style="width:110px; padding:3px 12px 3px 0; font-weight:700; color:${labelColor}; text-align:right; vertical-align:top; white-space:nowrap;">${label}</td>
+                <td style="padding:3px 0; word-break:break-word; white-space:pre-wrap; vertical-align:top;">${preserveParagraphs(value)}</td>
             </tr>
-        </table>
+        `;
+    }
 
-        <div class="footer">vk.com/fickbuhta ✦ создай своего персонажа</div>
+    const docHtml = `<!DOCTYPE html>
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!--[if gte mso 9]>
+    <xml>
+        <w:WordDocument>
+            <w:View>Print</w:View>
+            <w:Zoom>100</w:Zoom>
+        </w:WordDocument>
+    </xml>
+    <![endif]-->
+    <title>Карточка персонажа</title>
+    <style>
+        body { 
+            font-family: 'Georgia', 'Times New Roman', serif; 
+            background: ${bgColor}; 
+            color: ${textColor}; 
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .card-table {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            background: ${bgColor};
+            border-radius: 30px;
+            border-collapse: collapse;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .card-table td {
+            padding: 0;
+            vertical-align: top;
+        }
+        .left-cell {
+            width: 45%;
+            background: ${leftBg};
+            padding: 20px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .right-cell {
+            width: 55%;
+            padding: 25px 28px;
+            vertical-align: top;
+        }
+        .title { 
+            font-size: 26px; 
+            font-weight: 700; 
+            color: ${titleColor}; 
+            border-bottom: 2px solid ${borderColor}; 
+            padding-bottom: 10px; 
+            margin-bottom: 12px; 
+            letter-spacing: 6px; 
+        }
+        .section-title { 
+            font-size: 14px; 
+            font-weight: 700; 
+            color: ${titleColor}; 
+            letter-spacing: 3px; 
+            margin-top: 12px; 
+            border-bottom: 1px solid ${borderColor}; 
+            padding-bottom: 4px; 
+            opacity: 0.7; 
+        }
+        .fields-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .fields-table td {
+            padding: 3px 0;
+            vertical-align: top;
+        }
+        .label-col {
+            width: 110px;
+            padding-right: 12px;
+            font-weight: 700;
+            color: ${labelColor};
+            text-align: right;
+            white-space: nowrap;
+            vertical-align: top;
+        }
+        .value-col {
+            word-break: break-word;
+            white-space: pre-wrap;
+            vertical-align: top;
+        }
+        .quote { 
+            font-style: italic; 
+            font-size: 17px; 
+            border-left: 3px solid ${borderColor}; 
+            padding-left: 18px; 
+            margin: 8px 0; 
+            white-space: pre-wrap; 
+        }
+        .history { 
+            margin-top: 8px; 
+            padding-top: 10px; 
+            border-top: 1px solid ${borderColor}; 
+            font-size: 13px; 
+            white-space: pre-wrap; 
+        }
+        .footer { 
+            text-align: center; 
+            padding: 15px; 
+            font-size: 12px; 
+            opacity: 0.5; 
+            border-top: 1px solid ${borderColor}; 
+            font-style: italic; 
+            letter-spacing: 1px; 
+        }
+        .photo-wrap {
+            width: 100%;
+            max-width: 350px;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .photo-wrap img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 12px;
+        }
+        @media (max-width: 600px) {
+            .left-cell, .right-cell {
+                width: 100%;
+                display: block;
+            }
+            .label-col {
+                width: 80px;
+                font-size: 13px;
+            }
+        }
+        .card-table {
+            mso-table-lspace: 0;
+            mso-table-rspace: 0;
+            border-collapse: collapse;
+        }
+        .fields-table {
+            mso-table-lspace: 0;
+            mso-table-rspace: 0;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+<body>
 
-        </body>
-        </html>`;
+<table class="card-table" cellpadding="0" cellspacing="0">
+    <tr>
+        <td class="left-cell">
+            <div class="photo-wrap">
+                ${photoHtml}
+            </div>
+        </td>
+        <td class="right-cell">
+            <div class="title">⚓ ФИКБУХТА</div>
+            
+            <div class="section-title">▸ ЛИЧНОЕ</div>
+            <table class="fields-table" cellpadding="0" cellspacing="0">
+                ${createFieldRow('Имя', d.name)}
+                ${createFieldRow('Возраст', d.age)}
+                ${createFieldRow('Вид', d.species)}
+                ${createFieldRow('Пол', d.gender)}
+                ${createFieldRow('Занятие', d.job)}
+            </table>
+            
+            <div class="section-title">▸ ХАРАКТЕР</div>
+            <table class="fields-table" cellpadding="0" cellspacing="0">
+                ${createFieldRow('Характер', d.personality)}
+                ${createFieldRow('Преимущества', d.strengths)}
+                ${createFieldRow('Слабость', d.weaknesses)}
+            </table>
+            
+            <div class="section-title">▸ СПОСОБНОСТИ</div>
+            <div style="padding: 3px 0; white-space:pre-wrap;">${preserveParagraphs(d.skills)}</div>
+            
+            <div class="section-title">▸ БЛИЗКИЕ</div>
+            <div style="padding: 3px 0; white-space:pre-wrap;">${preserveParagraphs(d.family)}</div>
+            
+            <div class="quote">${preserveParagraphs(d.quote)}</div>
+            <div class="history"><b>История:</b> ${preserveParagraphs(d.backstory)}</div>
+        </td>
+    </tr>
+</table>
 
-            const blob = new Blob([docHtml], { type: 'text/html;charset=utf-8' });
-            const link = document.createElement('a');
-            link.download = `персонаж_${(d.name || 'безымянный').replace(/[^a-zа-я]/gi, '_')}.html`;
-            link.href = URL.createObjectURL(blob);
-            link.click();
-            URL.revokeObjectURL(link.href);
-        });
+<div class="footer">vk.com/fickbuhta ✦ создай своего персонажа</div>
 
+</body>
+</html>`;
+
+    const blob = new Blob([docHtml], { type: 'text/html;charset=utf-8' });
+    const link = document.createElement('a');
+    link.download = `персонаж_${(d.name || 'безымянный').replace(/[^a-zа-я]/gi, '_')}.html`;
+    link.href = URL.createObjectURL(blob);
+    link.click();
+    URL.revokeObjectURL(link.href);
+});
         // ============================================================
         // 10. ЭКСПОРТ В PNG (с сохранением абзацев)
         // ============================================================
