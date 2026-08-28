@@ -14,7 +14,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { min-height: 100vh; font-family: 'Playfair Display', 'Georgia', serif; padding: 20px; transition: all 0.5s ease; display: flex; justify-content: center; align-items: center; }
         
-        /* --- ТЕМЫ (САПФИР, ПЕРГАМЕНТ, ЖЕМЧУГ, СВОЯ) --- */
+        /* --- ТЕМЫ --- */
         body.theme-sapphire { background: linear-gradient(145deg, #080c1a 0%, #0e1a35 40%, #0a1225 100%); color: #D4AF37; }
         body.theme-sapphire .container { background: rgba(8, 18, 35, 0.92); backdrop-filter: blur(8px); border: 1px solid rgba(212, 175, 55, 0.3); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(212, 175, 55, 0.1); }
         body.theme-sapphire .form-control input, body.theme-sapphire .form-control textarea { background: rgba(10, 20, 40, 0.8); border: 1px solid rgba(212, 175, 55, 0.2); color: #D4AF37; }
@@ -198,45 +198,15 @@
         .import-export-row .ie-btn.export-json { color: #88ccff; border-color: #4488cc; }
         .import-export-row .ie-btn.import-json { color: #88ffaa; border-color: #44aa66; }
 
-        /* --- МОБИЛЬНАЯ АДАПТАЦИЯ (исправленная — фото вертикальное) --- */
+        /* --- МОБИЛЬНАЯ АДАПТАЦИЯ --- */
         @media (max-width: 850px) {
             .container { padding: 20px; }
-            .card-grid { 
-                grid-template-columns: 1fr; 
-                gap: 20px; 
-                min-height: auto; 
-            }
-            
-            /* Фото на мобильных — сохраняем вертикальные пропорции 2:3 */
-            .photo-cell { 
-                min-height: auto; 
-                max-height: none;
-                aspect-ratio: 2 / 3;
-                width: 100%;
-                max-width: 400px;
-                margin: 0 auto;
-            }
-            .photo-cell .photo-container { 
-                min-height: auto; 
-                max-height: none;
-                width: 100%;
-                height: 100%;
-            }
-            .photo-cell .photo-container img { 
-                width: 100%; 
-                height: 100%; 
-                object-fit: cover;
-                position: absolute;
-                top: 0;
-                left: 0;
-            }
-            .photo-cell .photo-container .no-photo {
-                font-size: 40px;
-            }
-            .photo-cell .photo-container .no-photo span {
-                font-size: 12px;
-            }
-            
+            .card-grid { grid-template-columns: 1fr; gap: 20px; min-height: auto; }
+            .photo-cell { min-height: auto; max-height: none; aspect-ratio: 2 / 3; width: 100%; max-width: 400px; margin: 0 auto; }
+            .photo-cell .photo-container { min-height: auto; max-height: none; width: 100%; height: 100%; }
+            .photo-cell .photo-container img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
+            .photo-cell .photo-container .no-photo { font-size: 40px; }
+            .photo-cell .photo-container .no-photo span { font-size: 12px; }
             .field-row { grid-template-columns: 1fr; gap: 4px; }
             .label-cell { text-align: left; font-size: 0.8rem; padding-top: 2px; }
             .header h1 { font-size: 1.6rem; letter-spacing: 4px; }
@@ -249,12 +219,7 @@
         @media (max-width: 500px) {
             body { padding: 10px; }
             .container { padding: 15px; border-radius: 20px; }
-            
-            .photo-cell { 
-                aspect-ratio: 2 / 3;
-                max-width: 320px;
-            }
-            
+            .photo-cell { aspect-ratio: 2 / 3; max-width: 320px; }
             .photo-cell .photo-overlay { bottom: 10px; padding: 4px 10px; }
             .photo-cell .photo-overlay button { font-size: 0.65rem; padding: 3px 8px; }
             .slot-item { flex-direction: column; align-items: stretch; }
@@ -311,7 +276,9 @@
                 <div class="field-row"><div class="label-cell">Занятие</div><div class="form-control"><input type="text" id="job" placeholder="Пират, детектив, маг..."></div></div>
 
                 <div class="section-title">▸ ХАРАКТЕР</div>
-                <div class="field-row"><div class="label-cell">Характер</div><div class="form-control"><input type="text" id="personality" placeholder="Вспыльчивый, меланхоличный..."></div></div>
+                <div class="field-row"><div class="label-cell">Характер</div>
+                    <div class="form-control"><textarea id="personality" placeholder="Вспыльчивый, меланхоличный..." style="min-height:40px;"></textarea></div>
+                </div>
                 <div class="field-row"><div class="label-cell">Преимущества</div><div class="form-control"><textarea id="strengths" placeholder="Храбрость, ум, верность..." style="min-height:40px;"></textarea></div></div>
                 <div class="field-row"><div class="label-cell">Слабость</div><div class="form-control"><textarea id="weaknesses" placeholder="Доверчивость, гордыня..." style="min-height:40px;"></textarea></div></div>
 
@@ -892,7 +859,7 @@
         });
 
         // ============================================================
-        // 9. ЭКСПОРТ .DOC
+        // 9. ЭКСПОРТ .DOC (с сохранением абзацев)
         // ============================================================
         document.getElementById('exportDocBtn').addEventListener('click', () => {
             const d = getCurrentCharacterData();
@@ -941,6 +908,12 @@
                 photoHtml = `<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:60px;opacity:0.15;">📷</div>`;
             }
 
+            // Функция для сохранения абзацев в DOC
+            function preserveParagraphs(text) {
+                if (!text) return '—';
+                return text.replace(/\n/g, '<br>');
+            }
+
             const docHtml = `<!DOCTYPE html>
         <html>
         <head><meta charset="UTF-8"><title>Карточка персонажа</title>
@@ -956,9 +929,9 @@
             .right .section-title { font-size: 14px; font-weight: 700; color: ${titleColor}; letter-spacing: 3px; margin-top: 8px; border-bottom: 1px solid ${borderColor}; padding-bottom: 4px; opacity:0.7; }
             .right .field { display: grid; grid-template-columns: 110px 1fr; gap: 12px; font-size: 14px; padding: 3px 0; }
             .right .field .lbl { font-weight: 700; color: ${labelColor}; text-align:right; }
-            .right .field .val { word-break: break-word; }
-            .right .quote { font-style: italic; font-size: 17px; border-left: 3px solid ${borderColor}; padding-left: 18px; margin: 6px 0; }
-            .right .history { margin-top: 6px; padding-top: 8px; border-top: 1px solid ${borderColor}; font-size: 13px; }
+            .right .field .val { word-break: break-word; white-space: pre-wrap; }
+            .right .quote { font-style: italic; font-size: 17px; border-left: 3px solid ${borderColor}; padding-left: 18px; margin: 6px 0; white-space: pre-wrap; }
+            .right .history { margin-top: 6px; padding-top: 8px; border-top: 1px solid ${borderColor}; font-size: 13px; white-space: pre-wrap; }
             .footer { text-align:center; padding: 15px; font-size:12px; opacity:0.5; border-top:1px solid ${borderColor}; font-style:italic; letter-spacing:1px; }
 </style></head>
 <body>
@@ -967,21 +940,21 @@
         <div class="right">
             <div class="title">⚓ ФИКБУХТА</div>
             <div class="section-title">▸ ЛИЧНОЕ</div>
-            <div class="field"><span class="lbl">Имя</span><span class="val">${escapeDoc(d.name || '—')}</span></div>
-            <div class="field"><span class="lbl">Возраст</span><span class="val">${escapeDoc(d.age || '—')}</span></div>
-            <div class="field"><span class="lbl">Вид</span><span class="val">${escapeDoc(d.species || '—')}</span></div>
-            <div class="field"><span class="lbl">Пол</span><span class="val">${escapeDoc(d.gender || '—')}</span></div>
-            <div class="field"><span class="lbl">Занятие</span><span class="val">${escapeDoc(d.job || '—')}</span></div>
+            <div class="field"><span class="lbl">Имя</span><span class="val">${preserveParagraphs(d.name)}</span></div>
+            <div class="field"><span class="lbl">Возраст</span><span class="val">${preserveParagraphs(d.age)}</span></div>
+            <div class="field"><span class="lbl">Вид</span><span class="val">${preserveParagraphs(d.species)}</span></div>
+            <div class="field"><span class="lbl">Пол</span><span class="val">${preserveParagraphs(d.gender)}</span></div>
+            <div class="field"><span class="lbl">Занятие</span><span class="val">${preserveParagraphs(d.job)}</span></div>
             <div class="section-title">▸ ХАРАКТЕР</div>
-            <div class="field"><span class="lbl">Характер</span><span class="val">${escapeDoc(d.personality || '—')}</span></div>
-            <div class="field"><span class="lbl">Преимущества</span><span class="val">${escapeDoc(d.strengths || '—')}</span></div>
-            <div class="field"><span class="lbl">Слабость</span><span class="val">${escapeDoc(d.weaknesses || '—')}</span></div>
+            <div class="field"><span class="lbl">Характер</span><span class="val">${preserveParagraphs(d.personality)}</span></div>
+            <div class="field"><span class="lbl">Преимущества</span><span class="val">${preserveParagraphs(d.strengths)}</span></div>
+            <div class="field"><span class="lbl">Слабость</span><span class="val">${preserveParagraphs(d.weaknesses)}</span></div>
             <div class="section-title">▸ СПОСОБНОСТИ</div>
-            <div class="field" style="display:block; padding-left: 0;"><span class="val">${escapeDoc(d.skills || '—')}</span></div>
+            <div class="field" style="display:block; padding-left: 0;"><span class="val" style="white-space:pre-wrap;">${preserveParagraphs(d.skills)}</span></div>
             <div class="section-title">▸ БЛИЗКИЕ</div>
-            <div class="field" style="display:block; padding-left: 0;"><span class="val">${escapeDoc(d.family || '—')}</span></div>
-            <div class="quote">«${escapeDoc(d.quote || '—')}»</div>
-            <div class="history"><b>История:</b> ${escapeDoc(d.backstory || '—')}</div>
+            <div class="field" style="display:block; padding-left: 0;"><span class="val" style="white-space:pre-wrap;">${preserveParagraphs(d.family)}</span></div>
+            <div class="quote">${preserveParagraphs(d.quote)}</div>
+            <div class="history"><b>История:</b> ${preserveParagraphs(d.backstory)}</div>
         </div>
     </div>
     <div class="footer">vk.com/fickbuhta ✦ создай своего персонажа</div>
@@ -995,270 +968,271 @@ link.click();
 URL.revokeObjectURL(link.href);
 });
 
-function escapeDoc(str) {
-if (!str) return '—';
-return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' } [m] || m)).replace(/\n/g, '<br>');
-}
+        // ============================================================
+        // 10. ЭКСПОРТ В PNG (с сохранением абзацев)
+        // ============================================================
+        document.getElementById('exportDossierBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('exportDossierBtn');
+            const originalText = btn.textContent;
+            btn.textContent = '⏳ СОЗДАЮ КАРТИНКУ...';
+            btn.disabled = true;
 
-// ============================================================
-// 10. ЭКСПОРТ В PNG
-// ============================================================
-document.getElementById('exportDossierBtn').addEventListener('click', async () => {
-const btn = document.getElementById('exportDossierBtn');
-const originalText = btn.textContent;
-btn.textContent = '⏳ СОЗДАЮ КАРТИНКУ...';
-btn.disabled = true;
+            try {
+                const d = getCurrentCharacterData();
+                const isSapphire = document.body.classList.contains('theme-sapphire');
+                const isPearl = document.body.classList.contains('theme-pearl');
+                const isParchment = document.body.classList.contains('theme-parchment');
+                const isCustom = document.body.classList.contains('theme-custom');
 
-try {
-const d = getCurrentCharacterData();
-const isSapphire = document.body.classList.contains('theme-sapphire');
-const isPearl = document.body.classList.contains('theme-pearl');
-const isParchment = document.body.classList.contains('theme-parchment');
-const isCustom = document.body.classList.contains('theme-custom');
+                let bgColor, borderColor, titleColor, labelColor, leftBg;
+                
+                if (isCustom) {
+                    bgColor = customBgInput.value;
+                    const textColor = customTextInput.value;
+                    titleColor = textColor;
+                    labelColor = textColor;
+                    borderColor = textColor + '44';
+                    leftBg = bgColor + '80';
+                } else if (isPearl) {
+                    bgColor = '#f0ece4';
+                    borderColor = 'rgba(26,74,58,0.12)';
+                    titleColor = '#1a4a3a';
+                    labelColor = '#1a4a3a';
+                    leftBg = '#e8ece4';
+                } else if (isParchment) {
+                    bgColor = '#d8c8a8';
+                    borderColor = '#8a7a5a';
+                    titleColor = '#2a1a0a';
+                    labelColor = '#3a2a1a';
+                    leftBg = '#b8a080';
+                } else {
+                    bgColor = '#0a1225';
+                    borderColor = 'rgba(212,175,55,0.15)';
+                    titleColor = '#D4AF37';
+                    labelColor = '#D4AF37';
+                    leftBg = '#0a1a2a';
+                }
 
-let bgColor, borderColor, titleColor, labelColor, leftBg;
-            
-if (isCustom) {
-bgColor = customBgInput.value;
-const textColor = customTextInput.value;
-titleColor = textColor;
-labelColor = textColor;
-borderColor = textColor + '44';
-leftBg = bgColor + '80';
-} else if (isPearl) {
-bgColor = '#f0ece4';
-borderColor = 'rgba(26,74,58,0.12)';
-titleColor = '#1a4a3a';
-labelColor = '#1a4a3a';
-leftBg = '#e8ece4';
-} else if (isParchment) {
-bgColor = '#d8c8a8';
-borderColor = '#8a7a5a';
-titleColor = '#2a1a0a';
-labelColor = '#3a2a1a';
-leftBg = '#b8a080';
-} else {
-bgColor = '#0a1225';
-borderColor = 'rgba(212,175,55,0.15)';
-titleColor = '#D4AF37';
-labelColor = '#D4AF37';
-leftBg = '#0a1a2a';
-}
+                const exportDiv = document.createElement('div');
+                exportDiv.style.width = '800px';
+                exportDiv.style.minHeight = '700px';
+                exportDiv.style.height = 'auto';
+                exportDiv.style.background = bgColor;
+                exportDiv.style.display = 'flex';
+                exportDiv.style.flexDirection = 'row';
+                exportDiv.style.borderRadius = '24px';
+                exportDiv.style.overflow = 'hidden';
+                exportDiv.style.boxShadow = '0 20px 60px rgba(0,0,0,0.6)';
+                exportDiv.style.position = 'absolute';
+                exportDiv.style.top = '-9999px';
+                exportDiv.style.left = '-9999px';
+                exportDiv.style.fontFamily = '"Playfair Display", Georgia, serif';
+                exportDiv.style.color = isCustom ? customTextInput.value : (isPearl ? '#1a4a3a' : (isParchment ? '#1a1008' : '#D4AF37'));
 
-const exportDiv = document.createElement('div');
-exportDiv.style.width = '800px';
-exportDiv.style.minHeight = '700px';
-exportDiv.style.height = 'auto';
-exportDiv.style.background = bgColor;
-exportDiv.style.display = 'flex';
-exportDiv.style.flexDirection = 'row';
-exportDiv.style.borderRadius = '24px';
-exportDiv.style.overflow = 'hidden';
-exportDiv.style.boxShadow = '0 20px 60px rgba(0,0,0,0.6)';
-exportDiv.style.position = 'absolute';
-exportDiv.style.top = '-9999px';
-exportDiv.style.left = '-9999px';
-exportDiv.style.fontFamily = '"Playfair Display", Georgia, serif';
-exportDiv.style.color = isCustom ? customTextInput.value : (isPearl ? '#1a4a3a' : (isParchment ? '#1a1008' : '#D4AF37'));
+                if (isParchment) {
+                    exportDiv.style.backgroundImage = 'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23d8c8a8"/><circle cx="20" cy="30" r="1.5" fill="%23b8a080" opacity="0.4"/><circle cx="70" cy="60" r="2" fill="%23b8a080" opacity="0.3"/><circle cx="45" cy="80" r="1.8" fill="%23b8a080" opacity="0.4"/></svg>\')';
+                    exportDiv.style.backgroundSize = '150px 150px';
+                }
 
-if (isParchment) {
-exportDiv.style.backgroundImage = 'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23d8c8a8"/><circle cx="20" cy="30" r="1.5" fill="%23b8a080" opacity="0.4"/><circle cx="70" cy="60" r="2" fill="%23b8a080" opacity="0.3"/><circle cx="45" cy="80" r="1.8" fill="%23b8a080" opacity="0.4"/></svg>\')';
-exportDiv.style.backgroundSize = '150px 150px';
-}
+                const leftHalf = document.createElement('div');
+                leftHalf.style.width = '50%';
+                leftHalf.style.minHeight = '700px';
+                leftHalf.style.background = leftBg;
+                leftHalf.style.display = 'flex';
+                leftHalf.style.alignItems = 'center';
+                leftHalf.style.justifyContent = 'center';
+                leftHalf.style.padding = '20px';
+                leftHalf.style.position = 'relative';
+                leftHalf.style.overflow = 'hidden';
 
-const leftHalf = document.createElement('div');
-leftHalf.style.width = '50%';
-leftHalf.style.minHeight = '700px';
-leftHalf.style.background = leftBg;
-leftHalf.style.display = 'flex';
-leftHalf.style.alignItems = 'center';
-leftHalf.style.justifyContent = 'center';
-leftHalf.style.padding = '20px';
-leftHalf.style.position = 'relative';
-leftHalf.style.overflow = 'hidden';
+                if (photoDataUrl) {
+                    const photoContainer = document.createElement('div');
+                    photoContainer.style.width = '100%';
+                    photoContainer.style.height = '100%';
+                    photoContainer.style.borderRadius = '12px';
+                    photoContainer.style.overflow = 'hidden';
+                    photoContainer.style.backgroundImage = `url('${photoDataUrl}')`;
+                    photoContainer.style.backgroundSize = 'cover';
+                    photoContainer.style.backgroundPosition = 'center';
+                    leftHalf.appendChild(photoContainer);
+                } else {
+                    leftHalf.innerHTML = `<div style="font-size:80px;opacity:0.12;">📷</div>`;
+                }
 
-if (photoDataUrl) {
-const photoContainer = document.createElement('div');
-photoContainer.style.width = '100%';
-photoContainer.style.height = '100%';
-photoContainer.style.borderRadius = '12px';
-photoContainer.style.overflow = 'hidden';
-photoContainer.style.backgroundImage = `url('${photoDataUrl}')`;
-photoContainer.style.backgroundSize = 'cover';
-photoContainer.style.backgroundPosition = 'center';
-leftHalf.appendChild(photoContainer);
-} else {
-leftHalf.innerHTML = `<div style="font-size:80px;opacity:0.12;">📷</div>`;
-}
+                const rightHalf = document.createElement('div');
+                rightHalf.style.width = '50%';
+                rightHalf.style.padding = '32px 30px';
+                rightHalf.style.display = 'flex';
+                rightHalf.style.flexDirection = 'column';
+                rightHalf.style.gap = '2px';
+                rightHalf.style.overflow = 'hidden';
 
-const rightHalf = document.createElement('div');
-rightHalf.style.width = '50%';
-rightHalf.style.padding = '32px 30px';
-rightHalf.style.display = 'flex';
-rightHalf.style.flexDirection = 'column';
-rightHalf.style.gap = '2px';
-rightHalf.style.overflow = 'hidden';
+                const title = document.createElement('div');
+                title.style.fontSize = '26px';
+                title.style.fontWeight = '700';
+                title.style.color = titleColor;
+                title.style.borderBottom = `2px solid ${borderColor}`;
+                title.style.paddingBottom = '10px';
+                title.style.marginBottom = '10px';
+                title.style.letterSpacing = '6px';
+                title.textContent = '⚓ ФИКБУХТА';
+                rightHalf.appendChild(title);
 
-const title = document.createElement('div');
-title.style.fontSize = '26px';
-title.style.fontWeight = '700';
-title.style.color = titleColor;
-title.style.borderBottom = `2px solid ${borderColor}`;
-title.style.paddingBottom = '10px';
-title.style.marginBottom = '10px';
-title.style.letterSpacing = '6px';
-title.textContent = '⚓ ФИКБУХТА';
-rightHalf.appendChild(title);
+                // Функция для создания текста с сохранением абзацев
+                function createTextNode(text) {
+                    const div = document.createElement('div');
+                    div.style.whiteSpace = 'pre-wrap';
+                    div.style.wordBreak = 'break-word';
+                    div.textContent = text || '—';
+                    return div;
+                }
 
-const sections = [
-{ name: '▸ ЛИЧНОЕ', fields: [
-['Имя', d.name],
-['Возраст', d.age],
-['Вид', d.species],
-['Пол', d.gender],
-['Занятие', d.job]
-]},
-{ name: '▸ ХАРАКТЕР', fields: [
-['Характер', d.personality],
-['Преимущества', d.strengths],
-['Слабость', d.weaknesses]
-]}
-];
+                const sections = [
+                    { name: '▸ ЛИЧНОЕ', fields: [
+                        ['Имя', d.name],
+                        ['Возраст', d.age],
+                        ['Вид', d.species],
+                        ['Пол', d.gender],
+                        ['Занятие', d.job]
+                    ]},
+                    { name: '▸ ХАРАКТЕР', fields: [
+                        ['Характер', d.personality],
+                        ['Преимущества', d.strengths],
+                        ['Слабость', d.weaknesses]
+                    ]}
+                ];
 
-sections.forEach(section => {
-const secTitle = document.createElement('div');
-secTitle.style.fontSize = '13px';
-secTitle.style.fontWeight = '700';
-secTitle.style.color = titleColor;
-secTitle.style.letterSpacing = '3px';
-secTitle.style.opacity = '0.7';
-secTitle.style.borderBottom = `1px solid ${borderColor}`;
-secTitle.style.paddingBottom = '4px';
-secTitle.style.marginTop = '8px';
-secTitle.textContent = section.name;
-rightHalf.appendChild(secTitle);
+                sections.forEach(section => {
+                    const secTitle = document.createElement('div');
+                    secTitle.style.fontSize = '13px';
+                    secTitle.style.fontWeight = '700';
+                    secTitle.style.color = titleColor;
+                    secTitle.style.letterSpacing = '3px';
+                    secTitle.style.opacity = '0.7';
+                    secTitle.style.borderBottom = `1px solid ${borderColor}`;
+                    secTitle.style.paddingBottom = '4px';
+                    secTitle.style.marginTop = '8px';
+                    secTitle.textContent = section.name;
+                    rightHalf.appendChild(secTitle);
 
-section.fields.forEach(([label, value]) => {
-const row = document.createElement('div');
-row.style.display = 'grid';
-row.style.gridTemplateColumns = '110px 1fr';
-row.style.gap = '12px';
-row.style.fontSize = '14px';
-row.style.padding = '3px 0';
+                    section.fields.forEach(([label, value]) => {
+                        const row = document.createElement('div');
+                        row.style.display = 'grid';
+                        row.style.gridTemplateColumns = '110px 1fr';
+                        row.style.gap = '12px';
+                        row.style.fontSize = '14px';
+                        row.style.padding = '3px 0';
+                        row.style.alignItems = 'start';
 
-const lbl = document.createElement('span');
-lbl.style.fontWeight = '700';
-lbl.style.color = labelColor;
-lbl.style.textAlign = 'right';
-lbl.textContent = label;
+                        const lbl = document.createElement('span');
+                        lbl.style.fontWeight = '700';
+                        lbl.style.color = labelColor;
+                        lbl.style.textAlign = 'right';
+                        lbl.textContent = label;
 
-const val = document.createElement('span');
-val.style.wordBreak = 'break-word';
-val.textContent = value || '—';
+                        const val = createTextNode(value);
 
-row.appendChild(lbl);
-row.appendChild(val);
-rightHalf.appendChild(row);
-});
-});
+                        row.appendChild(lbl);
+                        row.appendChild(val);
+                        rightHalf.appendChild(row);
+                    });
+                });
 
-// Способности
-const secSkills = document.createElement('div');
-secSkills.style.fontSize = '13px';
-secSkills.style.fontWeight = '700';
-secSkills.style.color = titleColor;
-secSkills.style.letterSpacing = '3px';
-secSkills.style.opacity = '0.7';
-secSkills.style.borderBottom = `1px solid ${borderColor}`;
-secSkills.style.paddingBottom = '4px';
-secSkills.style.marginTop = '8px';
-secSkills.textContent = '▸ СПОСОБНОСТИ';
-rightHalf.appendChild(secSkills);
+                // Способности
+                const secSkills = document.createElement('div');
+                secSkills.style.fontSize = '13px';
+                secSkills.style.fontWeight = '700';
+                secSkills.style.color = titleColor;
+                secSkills.style.letterSpacing = '3px';
+                secSkills.style.opacity = '0.7';
+                secSkills.style.borderBottom = `1px solid ${borderColor}`;
+                secSkills.style.paddingBottom = '4px';
+                secSkills.style.marginTop = '8px';
+                secSkills.textContent = '▸ СПОСОБНОСТИ';
+                rightHalf.appendChild(secSkills);
 
-const skillsVal = document.createElement('div');
-skillsVal.style.fontSize = '14px';
-skillsVal.style.padding = '3px 0';
-skillsVal.style.wordBreak = 'break-word';
-skillsVal.textContent = d.skills || '—';
-rightHalf.appendChild(skillsVal);
+                const skillsVal = createTextNode(d.skills);
+                skillsVal.style.fontSize = '14px';
+                skillsVal.style.padding = '3px 0';
+                rightHalf.appendChild(skillsVal);
 
-// Близкие
-const secFamily = document.createElement('div');
-secFamily.style.fontSize = '13px';
-secFamily.style.fontWeight = '700';
-secFamily.style.color = titleColor;
-secFamily.style.letterSpacing = '3px';
-secFamily.style.opacity = '0.7';
-secFamily.style.borderBottom = `1px solid ${borderColor}`;
-secFamily.style.paddingBottom = '4px';
-secFamily.style.marginTop = '8px';
-secFamily.textContent = '▸ БЛИЗКИЕ';
-rightHalf.appendChild(secFamily);
+                // Близкие
+                const secFamily = document.createElement('div');
+                secFamily.style.fontSize = '13px';
+                secFamily.style.fontWeight = '700';
+                secFamily.style.color = titleColor;
+                secFamily.style.letterSpacing = '3px';
+                secFamily.style.opacity = '0.7';
+                secFamily.style.borderBottom = `1px solid ${borderColor}`;
+                secFamily.style.paddingBottom = '4px';
+                secFamily.style.marginTop = '8px';
+                secFamily.textContent = '▸ БЛИЗКИЕ';
+                rightHalf.appendChild(secFamily);
 
-const familyVal = document.createElement('div');
-familyVal.style.fontSize = '14px';
-familyVal.style.padding = '3px 0';
-familyVal.style.wordBreak = 'break-word';
-familyVal.textContent = d.family || '—';
-rightHalf.appendChild(familyVal);
+                const familyVal = createTextNode(d.family);
+                familyVal.style.fontSize = '14px';
+                familyVal.style.padding = '3px 0';
+                rightHalf.appendChild(familyVal);
 
-// Цитата
-const quote = document.createElement('div');
-quote.style.fontStyle = 'italic';
-quote.style.fontSize = '17px';
-quote.style.borderLeft = `3px solid ${borderColor}`;
-quote.style.paddingLeft = '18px';
-quote.style.margin = '6px 0';
-quote.textContent = `«${d.quote || '—'}»`;
-rightHalf.appendChild(quote);
+                // Цитата
+                const quote = document.createElement('div');
+                quote.style.fontStyle = 'italic';
+                quote.style.fontSize = '17px';
+                quote.style.borderLeft = `3px solid ${borderColor}`;
+                quote.style.paddingLeft = '18px';
+                quote.style.margin = '6px 0';
+                quote.style.whiteSpace = 'pre-wrap';
+                quote.textContent = `«${d.quote || '—'}»`;
+                rightHalf.appendChild(quote);
 
-// История
-const history = document.createElement('div');
-history.style.marginTop = '4px';
-history.style.paddingTop = '8px';
-history.style.borderTop = `1px solid ${borderColor}`;
-history.style.fontSize = '13px';
-history.style.wordBreak = 'break-word';
-history.innerHTML = `<b>История:</b> ${d.backstory || '—'}`;
-rightHalf.appendChild(history);
+                // История
+                const history = document.createElement('div');
+                history.style.marginTop = '4px';
+                history.style.paddingTop = '8px';
+                history.style.borderTop = `1px solid ${borderColor}`;
+                history.style.fontSize = '13px';
+                history.style.wordBreak = 'break-word';
+                history.style.whiteSpace = 'pre-wrap';
+                history.innerHTML = `<b>История:</b> ${d.backstory || '—'}`;
+                rightHalf.appendChild(history);
 
-exportDiv.appendChild(leftHalf);
-exportDiv.appendChild(rightHalf);
+                exportDiv.appendChild(leftHalf);
+                exportDiv.appendChild(rightHalf);
 
-document.body.appendChild(exportDiv);
-await new Promise(r => setTimeout(r, 200));
+                document.body.appendChild(exportDiv);
+                await new Promise(r => setTimeout(r, 200));
 
-const actualHeight = exportDiv.scrollHeight;
-const canvas = await html2canvas(exportDiv, {
-scale: 2.5,
-backgroundColor: bgColor,
-useCORS: true,
-logging: false,
-height: actualHeight,
-windowHeight: actualHeight
-});
-document.body.removeChild(exportDiv);
+                const actualHeight = exportDiv.scrollHeight;
+                const canvas = await html2canvas(exportDiv, {
+                    scale: 2.5,
+                    backgroundColor: bgColor,
+                    useCORS: true,
+                    logging: false,
+                    height: actualHeight,
+                    windowHeight: actualHeight
+                });
+                document.body.removeChild(exportDiv);
 
-const link = document.createElement('a');
-const safeName = (d.name || 'персонаж').replace(/[^a-zа-я0-9]/gi, '_').substring(0, 30);
-link.download = `карточка_${safeName}.png`;
-link.href = canvas.toDataURL();
-link.click();
+                const link = document.createElement('a');
+                const safeName = (d.name || 'персонаж').replace(/[^a-zа-я0-9]/gi, '_').substring(0, 30);
+                link.download = `карточка_${safeName}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
 
-} catch(e) {
-console.error(e);
-alert('Ошибка при создании картинки: ' + e.message);
-} finally {
-btn.textContent = originalText;
-btn.disabled = false;
-}
-});
+            } catch(e) {
+                console.error(e);
+                alert('Ошибка при создании картинки: ' + e.message);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
 
-// ============================================================
-// 11. ИНИЦИАЛИЗАЦИЯ
-// ============================================================
-loadFromLocalStorage();
-renderSlots();
-</script>
+        // ============================================================
+        // 11. ИНИЦИАЛИЗАЦИЯ
+        // ============================================================
+        loadFromLocalStorage();
+        renderSlots();
+    </script>
 </body>
 </html>
