@@ -363,7 +363,7 @@
         <button class="export-btn html-btn" id="exportHtmlBtn">🌐 СКАЧАТЬ .HTML</button>
         <button class="reset-btn" id="resetBtn">🗑️ ОЧИСТИТЬ ВСЕ ПОЛЯ</button>
 
-        <div class="footer">vk.com/fickbuhta ✦ создай своего персонажа ✦ #челлендж_фикбухта</div>
+        <div class="footer">https://vk.ru/fickbuhta ✦ создай своего персонажа ✦ #челлендж_фикбухта</div>
     </div>
 
     <div class="crop-modal" id="cropModal">
@@ -499,7 +499,6 @@
         // 2. ДАННЫЕ (с сохранением темы)
         // ============================================================
         function getCurrentCharacterData() {
-            // Определяем текущую тему
             let theme = 'sapphire';
             let customBg = null;
             let customText = null;
@@ -555,7 +554,6 @@
             }
             updatePhotoDisplay();
             
-            // === ВОССТАНАВЛИВАЕМ ТЕМУ ===
             if (data.savedTheme) {
                 if (data.savedTheme === 'custom' && data.savedCustomBg && data.savedCustomText) {
                     document.getElementById('customBgColor').value = data.savedCustomBg;
@@ -959,7 +957,7 @@
         document.getElementById('exportTxtBtn').addEventListener('click', () => {
             const d = getCurrentCharacterData();
             const content =
-                `========================================\n⚓ ФИКБУХТА — КАРТОЧКА ПЕРСОНАЖА\n========================================\n\nЛИЧНОЕ:\nИМЯ: ${d.name || '—'}\nВОЗРАСТ: ${d.age || '—'}\nВИД: ${d.species || '—'}\nПОЛ: ${d.gender || '—'}\nЗАНЯТИЕ: ${d.job || '—'}\n\nПРЕИМУЩЕСТВА: ${d.strengths || '—'}\n\nСЛАБОСТЬ: ${d.weaknesses || '—'}\n\nХАРАКТЕР: ${d.personality || '—'}\n\nСПОСОБНОСТИ: ${d.skills || '—'}\n\nБЛИЗКИЕ: ${d.family || '—'}\n\nЦИТАТА: ${d.quote || '—'}\n\nИСТОРИЯ:\n${d.backstory || '—'}\n\n========================================\nvk.com/fickbuhta ✦ создай своего персонажа`;
+                `========================================\n⚓ ФИКБУХТА — КАРТОЧКА ПЕРСОНАЖА\n========================================\n\nЛИЧНОЕ:\nИМЯ: ${d.name || '—'}\nВОЗРАСТ: ${d.age || '—'}\nВИД: ${d.species || '—'}\nПОЛ: ${d.gender || '—'}\nЗАНЯТИЕ: ${d.job || '—'}\n\nПРЕИМУЩЕСТВА: ${d.strengths || '—'}\n\nСЛАБОСТЬ: ${d.weaknesses || '—'}\n\nХАРАКТЕР: ${d.personality || '—'}\n\nСПОСОБНОСТИ: ${d.skills || '—'}\n\nБЛИЗКИЕ: ${d.family || '—'}\n\nЦИТАТА: ${d.quote || '—'}\n\nИСТОРИЯ:\n${d.backstory || '—'}\n\n========================================\nhttps://vk.ru/fickbuhta ✦ создай своего персонажа`;
             const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
             const link = document.createElement('a');
             link.download =
@@ -1261,7 +1259,7 @@
                 </td>
             </tr>
         </table>
-        <div class="footer">vk.com/fickbuhta ✦ создай своего персонажа</div>
+        <div class="footer">https://vk.ru/fickbuhta ✦ создай своего персонажа</div>
         </div>
         </body>
         </html>`;
@@ -1284,7 +1282,6 @@
             btn.disabled = true;
 
             try {
-                // === 1. ПРИНУДИТЕЛЬНО ПРИМЕНЯЕМ ТЕКУЩУЮ ТЕМУ ===
                 const currentTheme = localStorage.getItem('fickbuhta_theme') || 'sapphire';
                 
                 if (currentTheme === 'custom') {
@@ -1299,11 +1296,9 @@
                 
                 await new Promise(r => setTimeout(r, 50));
                 
-                // === 2. ОБНОВЛЯЕМ ДАННЫЕ ===
                 saveToLocalStorage();
                 const d = getCurrentCharacterData();
                 
-                // === 3. ОПРЕДЕЛЯЕМ ЦВЕТА ===
                 const isSapphire = document.body.classList.contains('theme-sapphire');
                 const isPearl = document.body.classList.contains('theme-pearl');
                 const isParchment = document.body.classList.contains('theme-parchment');
@@ -1343,7 +1338,6 @@
                     leftBg = '#0a1a2a';
                 }
 
-                // === 4. СОЗДАЁМ КАРТИНКУ ===
                 const exportDiv = document.createElement('div');
                 exportDiv.style.width = '800px';
                 exportDiv.style.minHeight = '700px';
@@ -1365,7 +1359,6 @@
                     exportDiv.style.backgroundSize = '150px 150px';
                 }
 
-                // Левая половина — фото (55%)
                 const leftHalf = document.createElement('div');
                 leftHalf.style.width = '55%';
                 leftHalf.style.minHeight = '700px';
@@ -1391,7 +1384,6 @@
                     leftHalf.innerHTML = `<div style="font-size:80px;opacity:0.12;">📷</div>`;
                 }
 
-                // Правая половина — текст (45%)
                 const rightHalf = document.createElement('div');
                 rightHalf.style.width = '45%';
                 rightHalf.style.padding = '22px 20px';
@@ -1627,6 +1619,17 @@
                 history.style.whiteSpace = 'pre-wrap';
                 history.innerHTML = `<b>История:</b> ${d.backstory || '—'}`;
                 rightHalf.appendChild(history);
+
+                // === ФУТЕР С НОВОЙ ССЫЛКОЙ ===
+                const footer = document.createElement('div');
+                footer.style.textAlign = 'center';
+                footer.style.marginTop = '15px';
+                footer.style.paddingTop = '12px';
+                footer.style.borderTop = `1px solid ${borderColor}`;
+                footer.style.fontSize = '12px';
+                footer.style.opacity = '0.7';
+                footer.textContent = 'https://vk.ru/fickbuhta ✦ создай своего персонажа';
+                rightHalf.appendChild(footer);
 
                 exportDiv.appendChild(leftHalf);
                 exportDiv.appendChild(rightHalf);
