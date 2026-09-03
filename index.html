@@ -496,9 +496,24 @@
         });
 
         // ============================================================
-        // 2. ДАННЫЕ
+        // 2. ДАННЫЕ (с сохранением темы)
         // ============================================================
         function getCurrentCharacterData() {
+            // Определяем текущую тему
+            let theme = 'sapphire';
+            let customBg = null;
+            let customText = null;
+            
+            if (document.body.classList.contains('theme-custom')) {
+                theme = 'custom';
+                customBg = document.getElementById('customBgColor').value;
+                customText = document.getElementById('customTextColor').value;
+            } else if (document.body.classList.contains('theme-parchment')) {
+                theme = 'parchment';
+            } else if (document.body.classList.contains('theme-pearl')) {
+                theme = 'pearl';
+            }
+            
             return {
                 name: document.getElementById('name').value,
                 age: document.getElementById('age').value,
@@ -512,7 +527,10 @@
                 family: document.getElementById('family').value,
                 skills: document.getElementById('skills').value,
                 quote: document.getElementById('quote').value,
-                photo: photoDataUrl
+                photo: photoDataUrl,
+                savedTheme: theme,
+                savedCustomBg: customBg,
+                savedCustomText: customText
             };
         }
 
@@ -529,12 +547,36 @@
             document.getElementById('family').value = data.family || '';
             document.getElementById('skills').value = data.skills || '';
             document.getElementById('quote').value = data.quote || '';
+            
             if (data.photo) {
                 photoDataUrl = data.photo;
             } else {
                 photoDataUrl = null;
             }
             updatePhotoDisplay();
+            
+            // === ВОССТАНАВЛИВАЕМ ТЕМУ ===
+            if (data.savedTheme) {
+                if (data.savedTheme === 'custom' && data.savedCustomBg && data.savedCustomText) {
+                    document.getElementById('customBgColor').value = data.savedCustomBg;
+                    document.getElementById('customTextColor').value = data.savedCustomText;
+                    document.body.className = 'theme-custom';
+                    applyCustomColors(data.savedCustomBg, data.savedCustomText);
+                    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelector('.theme-btn[data-theme="custom"]').classList.add('active');
+                    document.getElementById('customColors').style.display = 'flex';
+                } else {
+                    document.body.className = `theme-${data.savedTheme}`;
+                    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+                    const themeBtn = document.querySelector(`.theme-btn[data-theme="${data.savedTheme}"]`);
+                    if (themeBtn) themeBtn.classList.add('active');
+                    document.getElementById('customColors').style.display = 'none';
+                }
+                localStorage.setItem('fickbuhta_theme', data.savedTheme);
+                if (data.savedCustomBg) localStorage.setItem('fickbuhta_custom_bg', data.savedCustomBg);
+                if (data.savedCustomText) localStorage.setItem('fickbuhta_custom_text', data.savedCustomText);
+            }
+            
             saveToLocalStorage();
         }
 
@@ -556,149 +598,135 @@
             el.addEventListener('input', saveToLocalStorage);
         });
 
-// ============================================================
-// 3. ТЕМЫ (ИСПРАВЛЕННЫЕ ОБРАБОТЧИКИ)
-// ============================================================
-const customColors = document.getElementById('customColors');
-const customBgInput = document.getElementById('customBgColor');
-const customTextInput = document.getElementById('customTextColor');
+        // ============================================================
+        // 3. ТЕМЫ
+        // ============================================================
+        const customColors = document.getElementById('customColors');
+        const customBgInput = document.getElementById('customBgColor');
+        const customTextInput = document.getElementById('customTextColor');
 
-function applyCustomColors(bgColor, textColor) {
-    document.documentElement.style.setProperty('--custom-bg', bgColor);
-    document.documentElement.style.setProperty('--custom-text', textColor);
-    
-    document.body.style.background = bgColor;
-    document.body.style.color = textColor;
-    
-    const container = document.querySelector('.container');
-    if (container) {
-        container.style.background = bgColor + 'dd';
-        container.style.borderColor = textColor + '44';
-    }
-    
-    document.querySelectorAll('.form-control input, .form-control textarea').forEach(el => {
-        el.style.color = textColor;
-        el.style.borderColor = textColor + '33';
-    });
-    
-    document.querySelectorAll('.section-title, .slots-title, .label-cell').forEach(el => {
-        el.style.color = textColor;
-    });
-    
-    document.querySelectorAll('.export-btn, .reset-btn, .slot-btn, .ie-btn').forEach(el => {
-        el.style.color = textColor;
-        el.style.borderColor = textColor + '44';
-    });
-    
-    document.querySelectorAll('.photo-cell .photo-overlay').forEach(el => {
-        el.style.borderColor = textColor + '33';
-    });
-    
-    // === НОВОЕ: добавляем индикатор активной кастомной темы ===
-    document.body.classList.add('theme-custom');
-    
-    // Сохраняем цвета в localStorage
-    localStorage.setItem('fickbuhta_custom_bg', bgColor);
-    localStorage.setItem('fickbuhta_custom_text', textColor);
-}
-
-function setTheme(theme) {
-    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-    const activeBtn = document.querySelector(`.theme-btn[data-theme="${theme}"]`);
-    if (activeBtn) activeBtn.classList.add('active');
-
-    if (theme === 'custom') {
-        customColors.style.display = 'flex';
-        // Применяем цвета из пикеров
-        applyCustomColors(customBgInput.value, customTextInput.value);
-    } else {
-        customColors.style.display = 'none';
-        // Убираем кастомные стили
-        document.body.style.background = '';
-        document.body.style.color = '';
-        const container = document.querySelector('.container');
-        if (container) {
-            container.style.background = '';
-            container.style.borderColor = '';
+        function applyCustomColors(bgColor, textColor) {
+            document.documentElement.style.setProperty('--custom-bg', bgColor);
+            document.documentElement.style.setProperty('--custom-text', textColor);
+            
+            document.body.style.background = bgColor;
+            document.body.style.color = textColor;
+            
+            const container = document.querySelector('.container');
+            if (container) {
+                container.style.background = bgColor + 'dd';
+                container.style.borderColor = textColor + '44';
+            }
+            
+            document.querySelectorAll('.form-control input, .form-control textarea').forEach(el => {
+                el.style.color = textColor;
+                el.style.borderColor = textColor + '33';
+            });
+            
+            document.querySelectorAll('.section-title, .slots-title, .label-cell').forEach(el => {
+                el.style.color = textColor;
+            });
+            
+            document.querySelectorAll('.export-btn, .reset-btn, .slot-btn, .ie-btn').forEach(el => {
+                el.style.color = textColor;
+                el.style.borderColor = textColor + '44';
+            });
+            
+            document.querySelectorAll('.photo-cell .photo-overlay').forEach(el => {
+                el.style.borderColor = textColor + '33';
+            });
+            
+            document.body.classList.add('theme-custom');
+            
+            localStorage.setItem('fickbuhta_custom_bg', bgColor);
+            localStorage.setItem('fickbuhta_custom_text', textColor);
         }
-        document.querySelectorAll('.form-control input, .form-control textarea').forEach(el => {
-            el.style.color = '';
-            el.style.borderColor = '';
-        });
-        document.querySelectorAll('.section-title, .slots-title, .label-cell').forEach(el => {
-            el.style.color = '';
-        });
-        document.querySelectorAll('.export-btn, .reset-btn, .slot-btn, .ie-btn').forEach(el => {
-            el.style.color = '';
-            el.style.borderColor = '';
-        });
-        document.querySelectorAll('.photo-cell .photo-overlay').forEach(el => {
-            el.style.borderColor = '';
-        });
-        document.body.className = `theme-${theme}`;
-    }
-    
-    localStorage.setItem('fickbuhta_theme', theme);
-}
 
-// === ИСПРАВЛЕННЫЕ ОБРАБОТЧИКИ ДЛЯ ПИКЕРОВ ===
+        function setTheme(theme) {
+            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.querySelector(`.theme-btn[data-theme="${theme}"]`);
+            if (activeBtn) activeBtn.classList.add('active');
 
-// 1. Обработчик для фона (реагирует на изменение)
-customBgInput.addEventListener('input', function() {
-    // Проверяем, что активна кастомная тема
-    if (document.body.classList.contains('theme-custom')) {
-        const bgColor = this.value;
-        const textColor = customTextInput.value;
-        applyCustomColors(bgColor, textColor);
-        // Сохраняем в localStorage
-        localStorage.setItem('fickbuhta_custom_bg', bgColor);
-    }
-});
-
-// 2. Обработчик для шрифта (реагирует на изменение)
-customTextInput.addEventListener('input', function() {
-    if (document.body.classList.contains('theme-custom')) {
-        const bgColor = customBgInput.value;
-        const textColor = this.value;
-        applyCustomColors(bgColor, textColor);
-        localStorage.setItem('fickbuhta_custom_text', textColor);
-    }
-});
-
-// 3. ДОПОЛНИТЕЛЬНО: реагируем на изменение value через код (для надёжности)
-// Это сработает, если цвет поменялся программно (например, при загрузке)
-customBgInput.addEventListener('change', function() {
-    if (document.body.classList.contains('theme-custom')) {
-        applyCustomColors(this.value, customTextInput.value);
-    }
-});
-
-customTextInput.addEventListener('change', function() {
-    if (document.body.classList.contains('theme-custom')) {
-        applyCustomColors(customBgInput.value, this.value);
-    }
-});
-
-// Переключатели тем (оставляем без изменений)
-document.querySelectorAll('.theme-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const theme = btn.dataset.theme;
-        if (theme === 'custom') {
-            document.body.className = 'theme-custom';
+            if (theme === 'custom') {
+                customColors.style.display = 'flex';
+                applyCustomColors(customBgInput.value, customTextInput.value);
+            } else {
+                customColors.style.display = 'none';
+                document.body.style.background = '';
+                document.body.style.color = '';
+                const container = document.querySelector('.container');
+                if (container) {
+                    container.style.background = '';
+                    container.style.borderColor = '';
+                }
+                document.querySelectorAll('.form-control input, .form-control textarea').forEach(el => {
+                    el.style.color = '';
+                    el.style.borderColor = '';
+                });
+                document.querySelectorAll('.section-title, .slots-title, .label-cell').forEach(el => {
+                    el.style.color = '';
+                });
+                document.querySelectorAll('.export-btn, .reset-btn, .slot-btn, .ie-btn').forEach(el => {
+                    el.style.color = '';
+                    el.style.borderColor = '';
+                });
+                document.querySelectorAll('.photo-cell .photo-overlay').forEach(el => {
+                    el.style.borderColor = '';
+                });
+                document.body.className = `theme-${theme}`;
+            }
+            
+            localStorage.setItem('fickbuhta_theme', theme);
         }
-        setTheme(theme);
-    });
-});
 
-// Загрузка сохранённой темы
-const savedTheme = localStorage.getItem('fickbuhta_theme') || 'sapphire';
-const savedCustomBg = localStorage.getItem('fickbuhta_custom_bg') || '#1a1a2e';
-const savedCustomText = localStorage.getItem('fickbuhta_custom_text') || '#ffffff';
+        customBgInput.addEventListener('input', function() {
+            if (document.body.classList.contains('theme-custom')) {
+                const bgColor = this.value;
+                const textColor = customTextInput.value;
+                applyCustomColors(bgColor, textColor);
+                localStorage.setItem('fickbuhta_custom_bg', bgColor);
+            }
+        });
 
-if (savedCustomBg) customBgInput.value = savedCustomBg;
-if (savedCustomText) customTextInput.value = savedCustomText;
+        customTextInput.addEventListener('input', function() {
+            if (document.body.classList.contains('theme-custom')) {
+                const bgColor = customBgInput.value;
+                const textColor = this.value;
+                applyCustomColors(bgColor, textColor);
+                localStorage.setItem('fickbuhta_custom_text', textColor);
+            }
+        });
 
-setTheme(savedTheme);
+        customBgInput.addEventListener('change', function() {
+            if (document.body.classList.contains('theme-custom')) {
+                applyCustomColors(this.value, customTextInput.value);
+            }
+        });
+
+        customTextInput.addEventListener('change', function() {
+            if (document.body.classList.contains('theme-custom')) {
+                applyCustomColors(customBgInput.value, this.value);
+            }
+        });
+
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const theme = btn.dataset.theme;
+                if (theme === 'custom') {
+                    document.body.className = 'theme-custom';
+                }
+                setTheme(theme);
+            });
+        });
+
+        const savedTheme = localStorage.getItem('fickbuhta_theme') || 'sapphire';
+        const savedCustomBg = localStorage.getItem('fickbuhta_custom_bg') || '#1a1a2e';
+        const savedCustomText = localStorage.getItem('fickbuhta_custom_text') || '#ffffff';
+
+        if (savedCustomBg) customBgInput.value = savedCustomBg;
+        if (savedCustomText) customTextInput.value = savedCustomText;
+
+        setTheme(savedTheme);
 
         // ============================================================
         // 4. СЛОТЫ
@@ -942,7 +970,7 @@ setTheme(savedTheme);
         });
 
         // ============================================================
-        // 9. ЭКСПОРТ .HTML (исправленный для Word)
+        // 9. ЭКСПОРТ .HTML (исправленный — компактная карточка)
         // ============================================================
         document.getElementById('exportHtmlBtn').addEventListener('click', () => {
             const d = getCurrentCharacterData();
@@ -951,7 +979,6 @@ setTheme(savedTheme);
             const isParchment = document.body.classList.contains('theme-parchment');
             const isCustom = document.body.classList.contains('theme-custom');
 
-            // ДЛЯ КАСТОМНОЙ ТЕМЫ БЕРЁМ ЦВЕТА НАПРЯМУЮ ИЗ ПИКЕРОВ
             let bgColor, borderColor, titleColor, labelColor, textColor, leftBg;
             
             if (isCustom) {
@@ -976,7 +1003,6 @@ setTheme(savedTheme);
                 textColor = '#1a1008';
                 leftBg = '#b8a080';
             } else {
-                // Sapphire (дефолт)
                 bgColor = '#0a1225';
                 borderColor = '#4a3a1a';
                 titleColor = '#D4AF37';
@@ -1013,22 +1039,32 @@ setTheme(savedTheme);
             <![endif]-->
             <title>Карточка персонажа</title>
             <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
                 body { 
                     font-family: 'Georgia', 'Times New Roman', serif; 
                     background: ${bgColor}; 
                     color: ${textColor}; 
                     margin: 0;
-                    padding: 40px 20px;
+                    padding: 0;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 100vh;
+                }
+                .card-wrapper {
+                    width: 100%;
+                    max-width: 800px;
+                    padding: 20px;
+                    background: ${bgColor};
+                    border-radius: 30px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
                 }
                 .card-table {
                     width: 100%;
-                    max-width: 900px;
-                    margin: 0 auto;
+                    border-collapse: collapse;
                     background: ${bgColor};
                     border-radius: 30px;
-                    border-collapse: collapse;
                     overflow: hidden;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
                 }
                 .card-table td {
                     padding: 0;
@@ -1133,6 +1169,9 @@ setTheme(savedTheme);
                         width: 100%;
                         display: block;
                     }
+                    .card-wrapper {
+                        padding: 10px;
+                    }
                     .label-col {
                         width: 60px;
                         font-size: 13px;
@@ -1151,7 +1190,7 @@ setTheme(savedTheme);
             </style>
         </head>
         <body>
-
+        <div class="card-wrapper">
         <table class="card-table" cellpadding="0" cellspacing="0">
             <tr>
                 <td class="left-cell">
@@ -1222,9 +1261,8 @@ setTheme(savedTheme);
                 </td>
             </tr>
         </table>
-
         <div class="footer">vk.com/fickbuhta ✦ создай своего персонажа</div>
-
+        </div>
         </body>
         </html>`;
 
@@ -1237,396 +1275,390 @@ setTheme(savedTheme);
         });
 
         // ============================================================
-// 10. ЭКСПОРТ В PNG (ГАРАНТИРОВАННО БЕРЁТ ЦВЕТА ИЗ ПИКЕРОВ)
-// ============================================================
-document.getElementById('exportDossierBtn').addEventListener('click', async () => {
-    const btn = document.getElementById('exportDossierBtn');
-    const originalText = btn.textContent;
-    btn.textContent = '⏳ СОЗДАЮ КАРТИНКУ...';
-    btn.disabled = true;
+        // 10. ЭКСПОРТ В PNG (ГАРАНТИРОВАННО БЕРЁТ ЦВЕТА ИЗ ПИКЕРОВ)
+        // ============================================================
+        document.getElementById('exportDossierBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('exportDossierBtn');
+            const originalText = btn.textContent;
+            btn.textContent = '⏳ СОЗДАЮ КАРТИНКУ...';
+            btn.disabled = true;
 
-    try {
-        // === 1. ПРИНУДИТЕЛЬНО ПРИМЕНЯЕМ ТЕКУЩУЮ ТЕМУ ===
-        // Это гарантирует, что все цвета точно обновились
-        const currentTheme = localStorage.getItem('fickbuhta_theme') || 'sapphire';
-        
-        // Если тема "custom" — применяем цвета из пикеров
-        if (currentTheme === 'custom') {
-            const bgColorPicker = document.getElementById('customBgColor');
-            const textColorPicker = document.getElementById('customTextColor');
-            if (bgColorPicker && textColorPicker) {
-                applyCustomColors(bgColorPicker.value, textColorPicker.value);
+            try {
+                // === 1. ПРИНУДИТЕЛЬНО ПРИМЕНЯЕМ ТЕКУЩУЮ ТЕМУ ===
+                const currentTheme = localStorage.getItem('fickbuhta_theme') || 'sapphire';
+                
+                if (currentTheme === 'custom') {
+                    const bgColorPicker = document.getElementById('customBgColor');
+                    const textColorPicker = document.getElementById('customTextColor');
+                    if (bgColorPicker && textColorPicker) {
+                        applyCustomColors(bgColorPicker.value, textColorPicker.value);
+                    }
+                } else {
+                    document.body.className = `theme-${currentTheme}`;
+                }
+                
+                await new Promise(r => setTimeout(r, 50));
+                
+                // === 2. ОБНОВЛЯЕМ ДАННЫЕ ===
+                saveToLocalStorage();
+                const d = getCurrentCharacterData();
+                
+                // === 3. ОПРЕДЕЛЯЕМ ЦВЕТА ===
+                const isSapphire = document.body.classList.contains('theme-sapphire');
+                const isPearl = document.body.classList.contains('theme-pearl');
+                const isParchment = document.body.classList.contains('theme-parchment');
+                const isCustom = document.body.classList.contains('theme-custom');
+
+                let bgColor, borderColor, titleColor, labelColor, leftBg, textColor;
+                
+                if (isCustom) {
+                    const bgPicker = document.getElementById('customBgColor');
+                    const textPicker = document.getElementById('customTextColor');
+                    bgColor = bgPicker ? bgPicker.value : '#1a1a2e';
+                    textColor = textPicker ? textPicker.value : '#ffffff';
+                    titleColor = textColor;
+                    labelColor = textColor;
+                    borderColor = textColor + '44';
+                    leftBg = bgColor + '80';
+                } else if (isPearl) {
+                    bgColor = '#f0ece4';
+                    borderColor = 'rgba(26,74,58,0.12)';
+                    titleColor = '#1a4a3a';
+                    labelColor = '#1a4a3a';
+                    textColor = '#1a4a3a';
+                    leftBg = '#e8ece4';
+                } else if (isParchment) {
+                    bgColor = '#d8c8a8';
+                    borderColor = '#8a7a5a';
+                    titleColor = '#2a1a0a';
+                    labelColor = '#3a2a1a';
+                    textColor = '#1a1008';
+                    leftBg = '#b8a080';
+                } else {
+                    bgColor = '#0a1225';
+                    borderColor = 'rgba(212,175,55,0.15)';
+                    titleColor = '#D4AF37';
+                    labelColor = '#D4AF37';
+                    textColor = '#D4AF37';
+                    leftBg = '#0a1a2a';
+                }
+
+                // === 4. СОЗДАЁМ КАРТИНКУ ===
+                const exportDiv = document.createElement('div');
+                exportDiv.style.width = '800px';
+                exportDiv.style.minHeight = '700px';
+                exportDiv.style.height = 'auto';
+                exportDiv.style.background = bgColor;
+                exportDiv.style.display = 'flex';
+                exportDiv.style.flexDirection = 'row';
+                exportDiv.style.borderRadius = '24px';
+                exportDiv.style.overflow = 'hidden';
+                exportDiv.style.boxShadow = '0 20px 60px rgba(0,0,0,0.6)';
+                exportDiv.style.position = 'absolute';
+                exportDiv.style.top = '-9999px';
+                exportDiv.style.left = '-9999px';
+                exportDiv.style.fontFamily = '"Playfair Display", Georgia, serif';
+                exportDiv.style.color = textColor;
+
+                if (isParchment) {
+                    exportDiv.style.backgroundImage = 'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23d8c8a8"/><circle cx="20" cy="30" r="1.5" fill="%23b8a080" opacity="0.4"/><circle cx="70" cy="60" r="2" fill="%23b8a080" opacity="0.3"/><circle cx="45" cy="80" r="1.8" fill="%23b8a080" opacity="0.4"/></svg>\')';
+                    exportDiv.style.backgroundSize = '150px 150px';
+                }
+
+                // Левая половина — фото (55%)
+                const leftHalf = document.createElement('div');
+                leftHalf.style.width = '55%';
+                leftHalf.style.minHeight = '700px';
+                leftHalf.style.background = leftBg;
+                leftHalf.style.display = 'flex';
+                leftHalf.style.alignItems = 'center';
+                leftHalf.style.justifyContent = 'center';
+                leftHalf.style.padding = '20px';
+                leftHalf.style.position = 'relative';
+                leftHalf.style.overflow = 'hidden';
+
+                if (photoDataUrl) {
+                    const photoContainer = document.createElement('div');
+                    photoContainer.style.width = '100%';
+                    photoContainer.style.height = '100%';
+                    photoContainer.style.borderRadius = '12px';
+                    photoContainer.style.overflow = 'hidden';
+                    photoContainer.style.backgroundImage = `url('${photoDataUrl}')`;
+                    photoContainer.style.backgroundSize = 'cover';
+                    photoContainer.style.backgroundPosition = 'center';
+                    leftHalf.appendChild(photoContainer);
+                } else {
+                    leftHalf.innerHTML = `<div style="font-size:80px;opacity:0.12;">📷</div>`;
+                }
+
+                // Правая половина — текст (45%)
+                const rightHalf = document.createElement('div');
+                rightHalf.style.width = '45%';
+                rightHalf.style.padding = '22px 20px';
+                rightHalf.style.display = 'flex';
+                rightHalf.style.flexDirection = 'column';
+                rightHalf.style.gap = '2px';
+                rightHalf.style.overflow = 'hidden';
+
+                const title = document.createElement('div');
+                title.style.fontSize = '24px';
+                title.style.fontWeight = '700';
+                title.style.color = titleColor;
+                title.style.borderBottom = `2px solid ${borderColor}`;
+                title.style.paddingBottom = '8px';
+                title.style.marginBottom = '8px';
+                title.style.letterSpacing = '6px';
+                title.textContent = '⚓ ФИКБУХТА';
+                rightHalf.appendChild(title);
+
+                function createTextNode(text) {
+                    const div = document.createElement('div');
+                    div.style.whiteSpace = 'pre-wrap';
+                    div.style.wordBreak = 'break-word';
+                    div.textContent = text || '—';
+                    return div;
+                }
+
+                // ЛИЧНОЕ
+                const sec1 = document.createElement('div');
+                sec1.style.fontSize = '13px';
+                sec1.style.fontWeight = '700';
+                sec1.style.color = titleColor;
+                sec1.style.letterSpacing = '3px';
+                sec1.style.opacity = '0.7';
+                sec1.style.borderBottom = `1px solid ${borderColor}`;
+                sec1.style.paddingBottom = '4px';
+                sec1.style.marginTop = '6px';
+                sec1.textContent = '▸ ЛИЧНОЕ';
+                rightHalf.appendChild(sec1);
+
+                const nameRow = document.createElement('div');
+                nameRow.style.display = 'grid';
+                nameRow.style.gridTemplateColumns = '70px 1fr';
+                nameRow.style.gap = '6px';
+                nameRow.style.fontSize = '14px';
+                nameRow.style.padding = '3px 0';
+                nameRow.style.alignItems = 'start';
+                const nameLbl = document.createElement('span');
+                nameLbl.style.fontWeight = '700';
+                nameLbl.style.color = labelColor;
+                nameLbl.style.textAlign = 'left';
+                nameLbl.textContent = 'Имя';
+                const nameVal = createTextNode(d.name);
+                nameRow.appendChild(nameLbl);
+                nameRow.appendChild(nameVal);
+                rightHalf.appendChild(nameRow);
+
+                const rowAgeGender = document.createElement('div');
+                rowAgeGender.style.display = 'grid';
+                rowAgeGender.style.gridTemplateColumns = '1fr 1fr';
+                rowAgeGender.style.gap = '12px';
+                rowAgeGender.style.fontSize = '14px';
+                rowAgeGender.style.padding = '3px 0';
+
+                const ageRow = document.createElement('div');
+                ageRow.style.display = 'grid';
+                ageRow.style.gridTemplateColumns = '70px 1fr';
+                ageRow.style.gap = '6px';
+                ageRow.style.alignItems = 'start';
+                const ageLbl = document.createElement('span');
+                ageLbl.style.fontWeight = '700';
+                ageLbl.style.color = labelColor;
+                ageLbl.style.textAlign = 'left';
+                ageLbl.textContent = 'Возраст';
+                const ageVal = createTextNode(d.age);
+                ageRow.appendChild(ageLbl);
+                ageRow.appendChild(ageVal);
+                rowAgeGender.appendChild(ageRow);
+
+                const genderRow = document.createElement('div');
+                genderRow.style.display = 'grid';
+                genderRow.style.gridTemplateColumns = '70px 1fr';
+                genderRow.style.gap = '6px';
+                genderRow.style.alignItems = 'start';
+                const genderLbl = document.createElement('span');
+                genderLbl.style.fontWeight = '700';
+                genderLbl.style.color = labelColor;
+                genderLbl.style.textAlign = 'left';
+                genderLbl.textContent = 'Пол';
+                const genderVal = createTextNode(d.gender);
+                genderRow.appendChild(genderLbl);
+                genderRow.appendChild(genderVal);
+                rowAgeGender.appendChild(genderRow);
+                rightHalf.appendChild(rowAgeGender);
+
+                const speciesRow = document.createElement('div');
+                speciesRow.style.display = 'grid';
+                speciesRow.style.gridTemplateColumns = '70px 1fr';
+                speciesRow.style.gap = '6px';
+                speciesRow.style.fontSize = '14px';
+                speciesRow.style.padding = '3px 0';
+                speciesRow.style.alignItems = 'start';
+                const speciesLbl = document.createElement('span');
+                speciesLbl.style.fontWeight = '700';
+                speciesLbl.style.color = labelColor;
+                speciesLbl.style.textAlign = 'left';
+                speciesLbl.textContent = 'Вид';
+                const speciesVal = createTextNode(d.species);
+                speciesRow.appendChild(speciesLbl);
+                speciesRow.appendChild(speciesVal);
+                rightHalf.appendChild(speciesRow);
+
+                const jobRow = document.createElement('div');
+                jobRow.style.display = 'grid';
+                jobRow.style.gridTemplateColumns = '70px 1fr';
+                jobRow.style.gap = '6px';
+                jobRow.style.fontSize = '14px';
+                jobRow.style.padding = '3px 0';
+                jobRow.style.alignItems = 'start';
+                const jobLbl = document.createElement('span');
+                jobLbl.style.fontWeight = '700';
+                jobLbl.style.color = labelColor;
+                jobLbl.style.textAlign = 'left';
+                jobLbl.textContent = 'Занятие';
+                const jobVal = createTextNode(d.job);
+                jobRow.appendChild(jobLbl);
+                jobRow.appendChild(jobVal);
+                rightHalf.appendChild(jobRow);
+
+                // ПРЕИМУЩЕСТВА
+                const sec2 = document.createElement('div');
+                sec2.style.fontSize = '13px';
+                sec2.style.fontWeight = '700';
+                sec2.style.color = titleColor;
+                sec2.style.letterSpacing = '3px';
+                sec2.style.opacity = '0.7';
+                sec2.style.borderBottom = `1px solid ${borderColor}`;
+                sec2.style.paddingBottom = '4px';
+                sec2.style.marginTop = '8px';
+                sec2.textContent = '▸ ПРЕИМУЩЕСТВА';
+                rightHalf.appendChild(sec2);
+                const strengthsVal = createTextNode(d.strengths);
+                strengthsVal.style.fontSize = '14px';
+                strengthsVal.style.padding = '3px 0';
+                rightHalf.appendChild(strengthsVal);
+
+                // СЛАБОСТЬ
+                const sec3 = document.createElement('div');
+                sec3.style.fontSize = '13px';
+                sec3.style.fontWeight = '700';
+                sec3.style.color = titleColor;
+                sec3.style.letterSpacing = '3px';
+                sec3.style.opacity = '0.7';
+                sec3.style.borderBottom = `1px solid ${borderColor}`;
+                sec3.style.paddingBottom = '4px';
+                sec3.style.marginTop = '8px';
+                sec3.textContent = '▸ СЛАБОСТЬ';
+                rightHalf.appendChild(sec3);
+                const weaknessesVal = createTextNode(d.weaknesses);
+                weaknessesVal.style.fontSize = '14px';
+                weaknessesVal.style.padding = '3px 0';
+                rightHalf.appendChild(weaknessesVal);
+
+                // ХАРАКТЕР
+                const sec4 = document.createElement('div');
+                sec4.style.fontSize = '13px';
+                sec4.style.fontWeight = '700';
+                sec4.style.color = titleColor;
+                sec4.style.letterSpacing = '3px';
+                sec4.style.opacity = '0.7';
+                sec4.style.borderBottom = `1px solid ${borderColor}`;
+                sec4.style.paddingBottom = '4px';
+                sec4.style.marginTop = '8px';
+                sec4.textContent = '▸ ХАРАКТЕР';
+                rightHalf.appendChild(sec4);
+                const personalityVal = createTextNode(d.personality);
+                personalityVal.style.fontSize = '14px';
+                personalityVal.style.padding = '3px 0';
+                rightHalf.appendChild(personalityVal);
+
+                // СПОСОБНОСТИ
+                const sec5 = document.createElement('div');
+                sec5.style.fontSize = '13px';
+                sec5.style.fontWeight = '700';
+                sec5.style.color = titleColor;
+                sec5.style.letterSpacing = '3px';
+                sec5.style.opacity = '0.7';
+                sec5.style.borderBottom = `1px solid ${borderColor}`;
+                sec5.style.paddingBottom = '4px';
+                sec5.style.marginTop = '8px';
+                sec5.textContent = '▸ СПОСОБНОСТИ';
+                rightHalf.appendChild(sec5);
+                const skillsVal = createTextNode(d.skills);
+                skillsVal.style.fontSize = '14px';
+                skillsVal.style.padding = '3px 0';
+                rightHalf.appendChild(skillsVal);
+
+                // БЛИЗКИЕ
+                const sec6 = document.createElement('div');
+                sec6.style.fontSize = '13px';
+                sec6.style.fontWeight = '700';
+                sec6.style.color = titleColor;
+                sec6.style.letterSpacing = '3px';
+                sec6.style.opacity = '0.7';
+                sec6.style.borderBottom = `1px solid ${borderColor}`;
+                sec6.style.paddingBottom = '4px';
+                sec6.style.marginTop = '8px';
+                sec6.textContent = '▸ БЛИЗКИЕ';
+                rightHalf.appendChild(sec6);
+                const familyVal = createTextNode(d.family);
+                familyVal.style.fontSize = '14px';
+                familyVal.style.padding = '3px 0';
+                rightHalf.appendChild(familyVal);
+
+                // Цитата
+                const quote = document.createElement('div');
+                quote.style.fontStyle = 'italic';
+                quote.style.fontSize = '16px';
+                quote.style.borderLeft = `3px solid ${borderColor}`;
+                quote.style.paddingLeft = '15px';
+                quote.style.margin = '6px 0';
+                quote.style.whiteSpace = 'pre-wrap';
+                quote.textContent = `«${d.quote || '—'}»`;
+                rightHalf.appendChild(quote);
+
+                // История
+                const history = document.createElement('div');
+                history.style.marginTop = '4px';
+                history.style.paddingTop = '6px';
+                history.style.borderTop = `1px solid ${borderColor}`;
+                history.style.fontSize = '13px';
+                history.style.wordBreak = 'break-word';
+                history.style.whiteSpace = 'pre-wrap';
+                history.innerHTML = `<b>История:</b> ${d.backstory || '—'}`;
+                rightHalf.appendChild(history);
+
+                exportDiv.appendChild(leftHalf);
+                exportDiv.appendChild(rightHalf);
+
+                document.body.appendChild(exportDiv);
+                await new Promise(r => setTimeout(r, 200));
+
+                const actualHeight = exportDiv.scrollHeight;
+                const canvas = await html2canvas(exportDiv, {
+                    scale: 2.5,
+                    backgroundColor: bgColor,
+                    useCORS: true,
+                    logging: false,
+                    height: actualHeight,
+                    windowHeight: actualHeight
+                });
+                document.body.removeChild(exportDiv);
+
+                const link = document.createElement('a');
+                const safeName = (d.name || 'персонаж').replace(/[^a-zа-я0-9]/gi, '_').substring(0, 30);
+                link.download = `карточка_${safeName}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+
+            } catch(e) {
+                console.error(e);
+                alert('Ошибка при создании картинки: ' + e.message);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
             }
-        } else {
-            // Для остальных тем просто устанавливаем класс
-            document.body.className = `theme-${currentTheme}`;
-        }
-        
-        // Небольшая задержка, чтобы браузер успел применить стили
-        await new Promise(r => setTimeout(r, 50));
-        
-        // === 2. ОБНОВЛЯЕМ ДАННЫЕ ===
-        saveToLocalStorage();
-        const d = getCurrentCharacterData();
-        
-        // === 3. ОПРЕДЕЛЯЕМ ЦВЕТА (С ПРОВЕРКОЙ) ===
-        const isSapphire = document.body.classList.contains('theme-sapphire');
-        const isPearl = document.body.classList.contains('theme-pearl');
-        const isParchment = document.body.classList.contains('theme-parchment');
-        const isCustom = document.body.classList.contains('theme-custom');
-
-        let bgColor, borderColor, titleColor, labelColor, leftBg, textColor;
-        
-        if (isCustom) {
-            // === КРИТИЧЕСКИ ВАЖНО: берём цвета напрямую из пикеров ===
-            const bgPicker = document.getElementById('customBgColor');
-            const textPicker = document.getElementById('customTextColor');
-            bgColor = bgPicker ? bgPicker.value : '#1a1a2e';
-            textColor = textPicker ? textPicker.value : '#ffffff';
-            titleColor = textColor;
-            labelColor = textColor;
-            borderColor = textColor + '44';
-            leftBg = bgColor + '80';
-        } else if (isPearl) {
-            bgColor = '#f0ece4';
-            borderColor = 'rgba(26,74,58,0.12)';
-            titleColor = '#1a4a3a';
-            labelColor = '#1a4a3a';
-            textColor = '#1a4a3a';
-            leftBg = '#e8ece4';
-        } else if (isParchment) {
-            bgColor = '#d8c8a8';
-            borderColor = '#8a7a5a';
-            titleColor = '#2a1a0a';
-            labelColor = '#3a2a1a';
-            textColor = '#1a1008';
-            leftBg = '#b8a080';
-        } else {
-            // Sapphire (дефолт)
-            bgColor = '#0a1225';
-            borderColor = 'rgba(212,175,55,0.15)';
-            titleColor = '#D4AF37';
-            labelColor = '#D4AF37';
-            textColor = '#D4AF37';
-            leftBg = '#0a1a2a';
-        }
-
-        // === 4. СОЗДАЁМ КАРТИНКУ ===
-        const exportDiv = document.createElement('div');
-        exportDiv.style.width = '800px';
-        exportDiv.style.minHeight = '700px';
-        exportDiv.style.height = 'auto';
-        exportDiv.style.background = bgColor;
-        exportDiv.style.display = 'flex';
-        exportDiv.style.flexDirection = 'row';
-        exportDiv.style.borderRadius = '24px';
-        exportDiv.style.overflow = 'hidden';
-        exportDiv.style.boxShadow = '0 20px 60px rgba(0,0,0,0.6)';
-        exportDiv.style.position = 'absolute';
-        exportDiv.style.top = '-9999px';
-        exportDiv.style.left = '-9999px';
-        exportDiv.style.fontFamily = '"Playfair Display", Georgia, serif';
-        exportDiv.style.color = textColor;
-
-        if (isParchment) {
-            exportDiv.style.backgroundImage = 'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23d8c8a8"/><circle cx="20" cy="30" r="1.5" fill="%23b8a080" opacity="0.4"/><circle cx="70" cy="60" r="2" fill="%23b8a080" opacity="0.3"/><circle cx="45" cy="80" r="1.8" fill="%23b8a080" opacity="0.4"/></svg>\')';
-            exportDiv.style.backgroundSize = '150px 150px';
-        }
-
-        // Левая половина — фото (55%)
-        const leftHalf = document.createElement('div');
-        leftHalf.style.width = '55%';
-        leftHalf.style.minHeight = '700px';
-        leftHalf.style.background = leftBg;
-        leftHalf.style.display = 'flex';
-        leftHalf.style.alignItems = 'center';
-        leftHalf.style.justifyContent = 'center';
-        leftHalf.style.padding = '20px';
-        leftHalf.style.position = 'relative';
-        leftHalf.style.overflow = 'hidden';
-
-        if (photoDataUrl) {
-            const photoContainer = document.createElement('div');
-            photoContainer.style.width = '100%';
-            photoContainer.style.height = '100%';
-            photoContainer.style.borderRadius = '12px';
-            photoContainer.style.overflow = 'hidden';
-            photoContainer.style.backgroundImage = `url('${photoDataUrl}')`;
-            photoContainer.style.backgroundSize = 'cover';
-            photoContainer.style.backgroundPosition = 'center';
-            leftHalf.appendChild(photoContainer);
-        } else {
-            leftHalf.innerHTML = `<div style="font-size:80px;opacity:0.12;">📷</div>`;
-        }
-
-        // Правая половина — текст (45%)
-        const rightHalf = document.createElement('div');
-        rightHalf.style.width = '45%';
-        rightHalf.style.padding = '22px 20px';
-        rightHalf.style.display = 'flex';
-        rightHalf.style.flexDirection = 'column';
-        rightHalf.style.gap = '2px';
-        rightHalf.style.overflow = 'hidden';
-
-        const title = document.createElement('div');
-        title.style.fontSize = '24px';
-        title.style.fontWeight = '700';
-        title.style.color = titleColor;
-        title.style.borderBottom = `2px solid ${borderColor}`;
-        title.style.paddingBottom = '8px';
-        title.style.marginBottom = '8px';
-        title.style.letterSpacing = '6px';
-        title.textContent = '⚓ ФИКБУХТА';
-        rightHalf.appendChild(title);
-
-        function createTextNode(text) {
-            const div = document.createElement('div');
-            div.style.whiteSpace = 'pre-wrap';
-            div.style.wordBreak = 'break-word';
-            div.textContent = text || '—';
-            return div;
-        }
-
-        // ЛИЧНОЕ
-        const sec1 = document.createElement('div');
-        sec1.style.fontSize = '13px';
-        sec1.style.fontWeight = '700';
-        sec1.style.color = titleColor;
-        sec1.style.letterSpacing = '3px';
-        sec1.style.opacity = '0.7';
-        sec1.style.borderBottom = `1px solid ${borderColor}`;
-        sec1.style.paddingBottom = '4px';
-        sec1.style.marginTop = '6px';
-        sec1.textContent = '▸ ЛИЧНОЕ';
-        rightHalf.appendChild(sec1);
-
-        const nameRow = document.createElement('div');
-        nameRow.style.display = 'grid';
-        nameRow.style.gridTemplateColumns = '70px 1fr';
-        nameRow.style.gap = '6px';
-        nameRow.style.fontSize = '14px';
-        nameRow.style.padding = '3px 0';
-        nameRow.style.alignItems = 'start';
-        const nameLbl = document.createElement('span');
-        nameLbl.style.fontWeight = '700';
-        nameLbl.style.color = labelColor;
-        nameLbl.style.textAlign = 'left';
-        nameLbl.textContent = 'Имя';
-        const nameVal = createTextNode(d.name);
-        nameRow.appendChild(nameLbl);
-        nameRow.appendChild(nameVal);
-        rightHalf.appendChild(nameRow);
-
-        const rowAgeGender = document.createElement('div');
-        rowAgeGender.style.display = 'grid';
-        rowAgeGender.style.gridTemplateColumns = '1fr 1fr';
-        rowAgeGender.style.gap = '12px';
-        rowAgeGender.style.fontSize = '14px';
-        rowAgeGender.style.padding = '3px 0';
-
-        const ageRow = document.createElement('div');
-        ageRow.style.display = 'grid';
-        ageRow.style.gridTemplateColumns = '70px 1fr';
-        ageRow.style.gap = '6px';
-        ageRow.style.alignItems = 'start';
-        const ageLbl = document.createElement('span');
-        ageLbl.style.fontWeight = '700';
-        ageLbl.style.color = labelColor;
-        ageLbl.style.textAlign = 'left';
-        ageLbl.textContent = 'Возраст';
-        const ageVal = createTextNode(d.age);
-        ageRow.appendChild(ageLbl);
-        ageRow.appendChild(ageVal);
-        rowAgeGender.appendChild(ageRow);
-
-        const genderRow = document.createElement('div');
-        genderRow.style.display = 'grid';
-        genderRow.style.gridTemplateColumns = '70px 1fr';
-        genderRow.style.gap = '6px';
-        genderRow.style.alignItems = 'start';
-        const genderLbl = document.createElement('span');
-        genderLbl.style.fontWeight = '700';
-        genderLbl.style.color = labelColor;
-        genderLbl.style.textAlign = 'left';
-        genderLbl.textContent = 'Пол';
-        const genderVal = createTextNode(d.gender);
-        genderRow.appendChild(genderLbl);
-        genderRow.appendChild(genderVal);
-        rowAgeGender.appendChild(genderRow);
-        rightHalf.appendChild(rowAgeGender);
-
-        const speciesRow = document.createElement('div');
-        speciesRow.style.display = 'grid';
-        speciesRow.style.gridTemplateColumns = '70px 1fr';
-        speciesRow.style.gap = '6px';
-        speciesRow.style.fontSize = '14px';
-        speciesRow.style.padding = '3px 0';
-        speciesRow.style.alignItems = 'start';
-        const speciesLbl = document.createElement('span');
-        speciesLbl.style.fontWeight = '700';
-        speciesLbl.style.color = labelColor;
-        speciesLbl.style.textAlign = 'left';
-        speciesLbl.textContent = 'Вид';
-        const speciesVal = createTextNode(d.species);
-        speciesRow.appendChild(speciesLbl);
-        speciesRow.appendChild(speciesVal);
-        rightHalf.appendChild(speciesRow);
-
-        const jobRow = document.createElement('div');
-        jobRow.style.display = 'grid';
-        jobRow.style.gridTemplateColumns = '70px 1fr';
-        jobRow.style.gap = '6px';
-        jobRow.style.fontSize = '14px';
-        jobRow.style.padding = '3px 0';
-        jobRow.style.alignItems = 'start';
-        const jobLbl = document.createElement('span');
-        jobLbl.style.fontWeight = '700';
-        jobLbl.style.color = labelColor;
-        jobLbl.style.textAlign = 'left';
-        jobLbl.textContent = 'Занятие';
-        const jobVal = createTextNode(d.job);
-        jobRow.appendChild(jobLbl);
-        jobRow.appendChild(jobVal);
-        rightHalf.appendChild(jobRow);
-
-        // ПРЕИМУЩЕСТВА
-        const sec2 = document.createElement('div');
-        sec2.style.fontSize = '13px';
-        sec2.style.fontWeight = '700';
-        sec2.style.color = titleColor;
-        sec2.style.letterSpacing = '3px';
-        sec2.style.opacity = '0.7';
-        sec2.style.borderBottom = `1px solid ${borderColor}`;
-        sec2.style.paddingBottom = '4px';
-        sec2.style.marginTop = '8px';
-        sec2.textContent = '▸ ПРЕИМУЩЕСТВА';
-        rightHalf.appendChild(sec2);
-        const strengthsVal = createTextNode(d.strengths);
-        strengthsVal.style.fontSize = '14px';
-        strengthsVal.style.padding = '3px 0';
-        rightHalf.appendChild(strengthsVal);
-
-        // СЛАБОСТЬ
-        const sec3 = document.createElement('div');
-        sec3.style.fontSize = '13px';
-        sec3.style.fontWeight = '700';
-        sec3.style.color = titleColor;
-        sec3.style.letterSpacing = '3px';
-        sec3.style.opacity = '0.7';
-        sec3.style.borderBottom = `1px solid ${borderColor}`;
-        sec3.style.paddingBottom = '4px';
-        sec3.style.marginTop = '8px';
-        sec3.textContent = '▸ СЛАБОСТЬ';
-        rightHalf.appendChild(sec3);
-        const weaknessesVal = createTextNode(d.weaknesses);
-        weaknessesVal.style.fontSize = '14px';
-        weaknessesVal.style.padding = '3px 0';
-        rightHalf.appendChild(weaknessesVal);
-
-        // ХАРАКТЕР
-        const sec4 = document.createElement('div');
-        sec4.style.fontSize = '13px';
-        sec4.style.fontWeight = '700';
-        sec4.style.color = titleColor;
-        sec4.style.letterSpacing = '3px';
-        sec4.style.opacity = '0.7';
-        sec4.style.borderBottom = `1px solid ${borderColor}`;
-        sec4.style.paddingBottom = '4px';
-        sec4.style.marginTop = '8px';
-        sec4.textContent = '▸ ХАРАКТЕР';
-        rightHalf.appendChild(sec4);
-        const personalityVal = createTextNode(d.personality);
-        personalityVal.style.fontSize = '14px';
-        personalityVal.style.padding = '3px 0';
-        rightHalf.appendChild(personalityVal);
-
-        // СПОСОБНОСТИ
-        const sec5 = document.createElement('div');
-        sec5.style.fontSize = '13px';
-        sec5.style.fontWeight = '700';
-        sec5.style.color = titleColor;
-        sec5.style.letterSpacing = '3px';
-        sec5.style.opacity = '0.7';
-        sec5.style.borderBottom = `1px solid ${borderColor}`;
-        sec5.style.paddingBottom = '4px';
-        sec5.style.marginTop = '8px';
-        sec5.textContent = '▸ СПОСОБНОСТИ';
-        rightHalf.appendChild(sec5);
-        const skillsVal = createTextNode(d.skills);
-        skillsVal.style.fontSize = '14px';
-        skillsVal.style.padding = '3px 0';
-        rightHalf.appendChild(skillsVal);
-
-        // БЛИЗКИЕ
-        const sec6 = document.createElement('div');
-        sec6.style.fontSize = '13px';
-        sec6.style.fontWeight = '700';
-        sec6.style.color = titleColor;
-        sec6.style.letterSpacing = '3px';
-        sec6.style.opacity = '0.7';
-        sec6.style.borderBottom = `1px solid ${borderColor}`;
-        sec6.style.paddingBottom = '4px';
-        sec6.style.marginTop = '8px';
-        sec6.textContent = '▸ БЛИЗКИЕ';
-        rightHalf.appendChild(sec6);
-        const familyVal = createTextNode(d.family);
-        familyVal.style.fontSize = '14px';
-        familyVal.style.padding = '3px 0';
-        rightHalf.appendChild(familyVal);
-
-        // Цитата
-        const quote = document.createElement('div');
-        quote.style.fontStyle = 'italic';
-        quote.style.fontSize = '16px';
-        quote.style.borderLeft = `3px solid ${borderColor}`;
-        quote.style.paddingLeft = '15px';
-        quote.style.margin = '6px 0';
-        quote.style.whiteSpace = 'pre-wrap';
-        quote.textContent = `«${d.quote || '—'}»`;
-        rightHalf.appendChild(quote);
-
-        // История
-        const history = document.createElement('div');
-        history.style.marginTop = '4px';
-        history.style.paddingTop = '6px';
-        history.style.borderTop = `1px solid ${borderColor}`;
-        history.style.fontSize = '13px';
-        history.style.wordBreak = 'break-word';
-        history.style.whiteSpace = 'pre-wrap';
-        history.innerHTML = `<b>История:</b> ${d.backstory || '—'}`;
-        rightHalf.appendChild(history);
-
-        exportDiv.appendChild(leftHalf);
-        exportDiv.appendChild(rightHalf);
-
-        document.body.appendChild(exportDiv);
-        await new Promise(r => setTimeout(r, 200));
-
-        const actualHeight = exportDiv.scrollHeight;
-        const canvas = await html2canvas(exportDiv, {
-            scale: 2.5,
-            backgroundColor: bgColor,
-            useCORS: true,
-            logging: false,
-            height: actualHeight,
-            windowHeight: actualHeight
         });
-        document.body.removeChild(exportDiv);
-
-        const link = document.createElement('a');
-        const safeName = (d.name || 'персонаж').replace(/[^a-zа-я0-9]/gi, '_').substring(0, 30);
-        link.download = `карточка_${safeName}.png`;
-        link.href = canvas.toDataURL();
-        link.click();
-
-    } catch(e) {
-        console.error(e);
-        alert('Ошибка при создании картинки: ' + e.message);
-    } finally {
-        btn.textContent = originalText;
-        btn.disabled = false;
-    }
-});
 
         // ============================================================
         // 11. ИНИЦИАЛИЗАЦИЯ
