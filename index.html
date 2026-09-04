@@ -1279,7 +1279,7 @@
         });
 
         // ============================================================
-        // 10. ЭКСПОРТ В PNG (С ФИКСОМ ФУТЕРА)
+        // 10. ЭКСПОРТ В PNG (С ФИКСОМ ФУТЕРА — getBoundingClientRect)
         // ============================================================
         document.getElementById('exportDossierBtn').addEventListener('click', async () => {
             const btn = document.getElementById('exportDossierBtn');
@@ -1398,7 +1398,7 @@
 
                 const rightHalf = document.createElement('div');
                 rightHalf.style.width = '45%';
-                rightHalf.style.padding = '22px 20px 30px 20px';
+                rightHalf.style.padding = '22px 20px 22px 20px';
                 rightHalf.style.display = 'flex';
                 rightHalf.style.flexDirection = 'column';
                 rightHalf.style.gap = '2px';
@@ -1522,23 +1522,34 @@
                 // === ФУТЕР СО ССЫЛКОЙ ===
                 const footer = document.createElement('div');
                 footer.style.textAlign = 'center';
-                footer.style.marginTop = '18px';
-                footer.style.paddingTop = '14px';
+                footer.style.marginTop = '14px';
+                footer.style.paddingTop = '12px';
                 footer.style.paddingBottom = '4px';
                 footer.style.borderTop = `1px solid ${borderColor}`;
                 footer.style.fontSize = '12px';
                 footer.style.opacity = '0.7';
                 footer.style.fontFamily = '"Playfair Display", Georgia, serif';
                 footer.textContent = 'https://vk.ru/fickbuhta ✦ создай своего персонажа';
+                footer.id = 'exportFooter';
                 rightHalf.appendChild(footer);
 
                 exportDiv.appendChild(leftHalf);
                 exportDiv.appendChild(rightHalf);
 
                 document.body.appendChild(exportDiv);
+                
+                // Принудительно убеждаемся, что футер виден
+                const footerEl = document.getElementById('exportFooter');
+                if (footerEl) {
+                    footerEl.style.display = 'block';
+                    footerEl.style.visibility = 'visible';
+                }
+
                 await new Promise(r => setTimeout(r, 600));
 
-                const actualHeight = exportDiv.scrollHeight + 50;
+                // === ТОЧНОЕ ИЗМЕРЕНИЕ ВЫСОТЫ С ПОМОЩЬЮ getBoundingClientRect ===
+                const rect = exportDiv.getBoundingClientRect();
+                const actualHeight = rect.height;
 
                 const canvas = await html2canvas(exportDiv, {
                     scale: 2.5,
