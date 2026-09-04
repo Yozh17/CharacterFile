@@ -1279,7 +1279,7 @@
         });
 
         // ============================================================
-        // 10. ЭКСПОРТ В PNG (С ФИКСОМ ФУТЕРА — getBoundingClientRect)
+        // 10. ЭКСПОРТ В PNG (НАДЁЖНЫЙ ФИКС ФУТЕРА ДЛЯ ЛЮБОГО МАСШТАБА)
         // ============================================================
         document.getElementById('exportDossierBtn').addEventListener('click', async () => {
             const btn = document.getElementById('exportDossierBtn');
@@ -1519,12 +1519,12 @@
                 history.innerHTML = `<b>История:</b> ${d.backstory || '—'}`;
                 rightHalf.appendChild(history);
 
-                // === ФУТЕР СО ССЫЛКОЙ ===
+                // === ФУТЕР СО ССЫЛКОЙ (уменьшенные отступы) ===
                 const footer = document.createElement('div');
                 footer.style.textAlign = 'center';
                 footer.style.marginTop = '14px';
                 footer.style.paddingTop = '12px';
-                footer.style.paddingBottom = '4px';
+                footer.style.paddingBottom = '6px';
                 footer.style.borderTop = `1px solid ${borderColor}`;
                 footer.style.fontSize = '12px';
                 footer.style.opacity = '0.7';
@@ -1537,7 +1537,7 @@
                 exportDiv.appendChild(rightHalf);
 
                 document.body.appendChild(exportDiv);
-                
+
                 // Принудительно убеждаемся, что футер виден
                 const footerEl = document.getElementById('exportFooter');
                 if (footerEl) {
@@ -1547,9 +1547,11 @@
 
                 await new Promise(r => setTimeout(r, 600));
 
-                // === ТОЧНОЕ ИЗМЕРЕНИЕ ВЫСОТЫ С ПОМОЩЬЮ getBoundingClientRect ===
+                // === НАДЁЖНОЕ ИЗМЕРЕНИЕ ВЫСОТЫ (с запасом для любого масштаба) ===
                 const rect = exportDiv.getBoundingClientRect();
-                const actualHeight = rect.height;
+                const scrollHeight = exportDiv.scrollHeight;
+                // Берём максимальную высоту + запас 60px для любого масштаба
+                const actualHeight = Math.max(rect.height, scrollHeight) + 60;
 
                 const canvas = await html2canvas(exportDiv, {
                     scale: 2.5,
