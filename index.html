@@ -125,9 +125,9 @@
         .custom-colors input[type="color"]::-webkit-color-swatch { border: none; border-radius: 50%; }
         .custom-colors input[type="color"]::-moz-color-swatch { border: none; border-radius: 50%; }
 
-        .header { text-align: center; margin-bottom: 25px; }
-        .header h1 { font-size: 2.2rem; letter-spacing: 8px; font-weight: 700; }
-        .header .sub { font-style: italic; font-size: 0.95rem; letter-spacing: 2px; opacity: 0.7; margin-top: 2px; }
+        /* Убираем старый хедер */
+        .header { display: none; }
+
         .card-grid { display: grid; grid-template-columns: 55% 45%; gap: 20px; margin-bottom: 20px; min-height: 600px; }
         
         .photo-cell { border-radius: 20px; overflow: hidden; position: relative; min-height: 500px; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(212, 175, 55, 0.1); }
@@ -258,11 +258,6 @@
             <label>✏️ Шрифт <input type="color" id="customTextColor" value="#ffffff"></label>
         </div>
 
-        <div class="header">
-            <h1>⚓ ФИКБУХТА ⚓</h1>
-            <div class="sub">✦ карточка персонажа ✦</div>
-        </div>
-
         <div class="card-grid">
             <div class="photo-cell">
                 <div class="photo-container" id="photoContainer">
@@ -277,6 +272,12 @@
             </div>
 
             <div class="fields-cell">
+                <!-- ЗАГОЛОВОК ПЕРЕНЕСЁН СЮДА -->
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 1.8rem; font-weight: 700; letter-spacing: 8px; color: inherit;">⚓ ФИКБУХТА ⚓</div>
+                    <div style="font-style: italic; font-size: 0.9rem; letter-spacing: 2px; opacity: 0.7;">✦ карточка персонажа ✦</div>
+                </div>
+
                 <!-- ЛИЧНОЕ -->
                 <div class="section-title">▸ ЛИЧНОЕ</div>
                 
@@ -343,6 +344,11 @@
                 <!-- ИСТОРИЯ -->
                 <div class="section-title">▸ ИСТОРИЯ</div>
                 <div class="form-control" style="margin-top: 4px;"><textarea id="backstory" placeholder="История персонажа..." style="min-height:60px;"></textarea></div>
+
+                <!-- ФУТЕР С СОЗДАНИЕМ ПЕРСОНАЖА -->
+                <div style="text-align: center; margin-top: 20px; padding-top: 12px; border-top: 1px solid rgba(255,215,140,0.2); font-size: 0.7rem; opacity: 0.6; font-style: italic; letter-spacing: 0.5px;">
+                    https://vk.ru/fickbuhta ✦ создай своего персонажа
+                </div>
             </div>
         </div>
 
@@ -968,7 +974,7 @@
         });
 
         // ============================================================
-        // 9. ЭКСПОРТ .HTML (исправленный — компактная карточка)
+        // 9. ЭКСПОРТ .HTML
         // ============================================================
         document.getElementById('exportHtmlBtn').addEventListener('click', () => {
             const d = getCurrentCharacterData();
@@ -1272,445 +1278,299 @@
             URL.revokeObjectURL(link.href);
         });
 
-       // ============================================================
-// 10. ЭКСПОРТ В PNG (С ФИКСАМИ ШРИФТА И ОБРЕЗАНИЯ)
-// ============================================================
-document.getElementById('exportDossierBtn').addEventListener('click', async () => {
-    const btn = document.getElementById('exportDossierBtn');
-    const originalText = btn.textContent;
-    btn.textContent = '⏳ СОЗДАЮ КАРТИНКУ...';
-    btn.disabled = true;
+        // ============================================================
+        // 10. ЭКСПОРТ В PNG (С ФИКСОМ ФУТЕРА)
+        // ============================================================
+        document.getElementById('exportDossierBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('exportDossierBtn');
+            const originalText = btn.textContent;
+            btn.textContent = '⏳ СОЗДАЮ КАРТИНКУ...';
+            btn.disabled = true;
 
-    try {
-        const currentTheme = localStorage.getItem('fickbuhta_theme') || 'sapphire';
-        
-        if (currentTheme === 'custom') {
-            const bgColorPicker = document.getElementById('customBgColor');
-            const textColorPicker = document.getElementById('customTextColor');
-            if (bgColorPicker && textColorPicker) {
-                applyCustomColors(bgColorPicker.value, textColorPicker.value);
-            }
-        } else {
-            document.body.className = `theme-${currentTheme}`;
-        }
-        
-        await new Promise(r => setTimeout(r, 50));
-        
-        saveToLocalStorage();
-        const d = getCurrentCharacterData();
-        
-        const isSapphire = document.body.classList.contains('theme-sapphire');
-        const isPearl = document.body.classList.contains('theme-pearl');
-        const isParchment = document.body.classList.contains('theme-parchment');
-        const isCustom = document.body.classList.contains('theme-custom');
+            try {
+                const currentTheme = localStorage.getItem('fickbuhta_theme') || 'sapphire';
+                
+                if (currentTheme === 'custom') {
+                    const bgColorPicker = document.getElementById('customBgColor');
+                    const textColorPicker = document.getElementById('customTextColor');
+                    if (bgColorPicker && textColorPicker) {
+                        applyCustomColors(bgColorPicker.value, textColorPicker.value);
+                    }
+                } else {
+                    document.body.className = `theme-${currentTheme}`;
+                }
+                
+                await new Promise(r => setTimeout(r, 50));
+                
+                saveToLocalStorage();
+                const d = getCurrentCharacterData();
+                
+                const isSapphire = document.body.classList.contains('theme-sapphire');
+                const isPearl = document.body.classList.contains('theme-pearl');
+                const isParchment = document.body.classList.contains('theme-parchment');
+                const isCustom = document.body.classList.contains('theme-custom');
 
-        let bgColor, borderColor, titleColor, labelColor, leftBg, textColor;
-        
-        if (isCustom) {
-            const bgPicker = document.getElementById('customBgColor');
-            const textPicker = document.getElementById('customTextColor');
-            bgColor = bgPicker ? bgPicker.value : '#1a1a2e';
-            textColor = textPicker ? textPicker.value : '#ffffff';
-            titleColor = textColor;
-            labelColor = textColor;
-            borderColor = textColor + '44';
-            leftBg = bgColor + '80';
-        } else if (isPearl) {
-            bgColor = '#f0ece4';
-            borderColor = 'rgba(26,74,58,0.12)';
-            titleColor = '#1a4a3a';
-            labelColor = '#1a4a3a';
-            textColor = '#1a4a3a';
-            leftBg = '#e8ece4';
-        } else if (isParchment) {
-            bgColor = '#d8c8a8';
-            borderColor = '#8a7a5a';
-            titleColor = '#2a1a0a';
-            labelColor = '#3a2a1a';
-            textColor = '#1a1008';
-            leftBg = '#b8a080';
-        } else {
-            bgColor = '#0a1225';
-            borderColor = 'rgba(212,175,55,0.15)';
-            titleColor = '#D4AF37';
-            labelColor = '#D4AF37';
-            textColor = '#D4AF37';
-            leftBg = '#0a1a2a';
-        }
+                let bgColor, borderColor, titleColor, labelColor, leftBg, textColor;
+                
+                if (isCustom) {
+                    const bgPicker = document.getElementById('customBgColor');
+                    const textPicker = document.getElementById('customTextColor');
+                    bgColor = bgPicker ? bgPicker.value : '#1a1a2e';
+                    textColor = textPicker ? textPicker.value : '#ffffff';
+                    titleColor = textColor;
+                    labelColor = textColor;
+                    borderColor = textColor + '44';
+                    leftBg = bgColor + '80';
+                } else if (isPearl) {
+                    bgColor = '#f0ece4';
+                    borderColor = 'rgba(26,74,58,0.12)';
+                    titleColor = '#1a4a3a';
+                    labelColor = '#1a4a3a';
+                    textColor = '#1a4a3a';
+                    leftBg = '#e8ece4';
+                } else if (isParchment) {
+                    bgColor = '#d8c8a8';
+                    borderColor = '#8a7a5a';
+                    titleColor = '#2a1a0a';
+                    labelColor = '#3a2a1a';
+                    textColor = '#1a1008';
+                    leftBg = '#b8a080';
+                } else {
+                    bgColor = '#0a1225';
+                    borderColor = 'rgba(212,175,55,0.15)';
+                    titleColor = '#D4AF37';
+                    labelColor = '#D4AF37';
+                    textColor = '#D4AF37';
+                    leftBg = '#0a1a2a';
+                }
 
-        const exportDiv = document.createElement('div');
-        exportDiv.style.width = '800px';
-        exportDiv.style.minHeight = '700px';
-        exportDiv.style.height = 'auto';
-        exportDiv.style.overflow = 'visible'; // ВАЖНО: не обрезать текст
-        exportDiv.style.background = bgColor;
-        exportDiv.style.display = 'flex';
-        exportDiv.style.flexDirection = 'row';
-        exportDiv.style.borderRadius = '24px';
-        exportDiv.style.overflow = 'hidden';
-        exportDiv.style.boxShadow = '0 20px 60px rgba(0,0,0,0.6)';
-        exportDiv.style.position = 'absolute';
-        exportDiv.style.top = '-9999px';
-        exportDiv.style.left = '-9999px';
-        exportDiv.style.fontFamily = '"Playfair Display", Georgia, serif';
-        exportDiv.style.color = textColor;
+                const exportDiv = document.createElement('div');
+                exportDiv.style.width = '800px';
+                exportDiv.style.minHeight = '700px';
+                exportDiv.style.height = 'auto';
+                exportDiv.style.overflow = 'hidden';
+                exportDiv.style.background = bgColor;
+                exportDiv.style.display = 'flex';
+                exportDiv.style.flexDirection = 'row';
+                exportDiv.style.borderRadius = '24px';
+                exportDiv.style.boxShadow = '0 20px 60px rgba(0,0,0,0.6)';
+                exportDiv.style.position = 'absolute';
+                exportDiv.style.top = '-9999px';
+                exportDiv.style.left = '-9999px';
+                exportDiv.style.fontFamily = '"Playfair Display", Georgia, serif';
+                exportDiv.style.color = textColor;
 
-        // === ФИКС ШРИФТА: принудительная загрузка ===
-        // Добавляем ссылку на шрифт прямо в элемент
-        const fontLink = document.createElement('link');
-        fontLink.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap';
-        fontLink.rel = 'stylesheet';
-        exportDiv.appendChild(fontLink);
+                const fontLink = document.createElement('link');
+                fontLink.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap';
+                fontLink.rel = 'stylesheet';
+                exportDiv.appendChild(fontLink);
 
-        if (isParchment) {
-            exportDiv.style.backgroundImage = 'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23d8c8a8"/><circle cx="20" cy="30" r="1.5" fill="%23b8a080" opacity="0.4"/><circle cx="70" cy="60" r="2" fill="%23b8a080" opacity="0.3"/><circle cx="45" cy="80" r="1.8" fill="%23b8a080" opacity="0.4"/></svg>\')';
-            exportDiv.style.backgroundSize = '150px 150px';
-        }
+                if (isParchment) {
+                    exportDiv.style.backgroundImage = 'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23d8c8a8"/><circle cx="20" cy="30" r="1.5" fill="%23b8a080" opacity="0.4"/><circle cx="70" cy="60" r="2" fill="%23b8a080" opacity="0.3"/><circle cx="45" cy="80" r="1.8" fill="%23b8a080" opacity="0.4"/></svg>\')';
+                    exportDiv.style.backgroundSize = '150px 150px';
+                }
 
-        const leftHalf = document.createElement('div');
-        leftHalf.style.width = '55%';
-        leftHalf.style.minHeight = '700px';
-        leftHalf.style.background = leftBg;
-        leftHalf.style.display = 'flex';
-        leftHalf.style.alignItems = 'center';
-        leftHalf.style.justifyContent = 'center';
-        leftHalf.style.padding = '20px';
-        leftHalf.style.position = 'relative';
-        leftHalf.style.overflow = 'hidden';
-        leftHalf.style.fontFamily = '"Playfair Display", Georgia, serif';
+                const leftHalf = document.createElement('div');
+                leftHalf.style.width = '55%';
+                leftHalf.style.minHeight = '700px';
+                leftHalf.style.background = leftBg;
+                leftHalf.style.display = 'flex';
+                leftHalf.style.alignItems = 'center';
+                leftHalf.style.justifyContent = 'center';
+                leftHalf.style.padding = '20px';
+                leftHalf.style.position = 'relative';
+                leftHalf.style.overflow = 'hidden';
+                leftHalf.style.fontFamily = '"Playfair Display", Georgia, serif';
 
-        if (photoDataUrl) {
-            const photoContainer = document.createElement('div');
-            photoContainer.style.width = '100%';
-            photoContainer.style.height = '100%';
-            photoContainer.style.borderRadius = '12px';
-            photoContainer.style.overflow = 'hidden';
-            photoContainer.style.backgroundImage = `url('${photoDataUrl}')`;
-            photoContainer.style.backgroundSize = 'cover';
-            photoContainer.style.backgroundPosition = 'center';
-            leftHalf.appendChild(photoContainer);
-        } else {
-            leftHalf.innerHTML = `<div style="font-size:80px;opacity:0.12;font-family:'Playfair Display', Georgia, serif;">📷</div>`;
-        }
+                if (photoDataUrl) {
+                    const photoContainer = document.createElement('div');
+                    photoContainer.style.width = '100%';
+                    photoContainer.style.height = '100%';
+                    photoContainer.style.borderRadius = '12px';
+                    photoContainer.style.overflow = 'hidden';
+                    photoContainer.style.backgroundImage = `url('${photoDataUrl}')`;
+                    photoContainer.style.backgroundSize = 'cover';
+                    photoContainer.style.backgroundPosition = 'center';
+                    leftHalf.appendChild(photoContainer);
+                } else {
+                    leftHalf.innerHTML = `<div style="font-size:80px;opacity:0.12;font-family:'Playfair Display', Georgia, serif;">📷</div>`;
+                }
 
-        const rightHalf = document.createElement('div');
-        rightHalf.style.width = '45%';
-        rightHalf.style.padding = '22px 20px';
-        rightHalf.style.display = 'flex';
-        rightHalf.style.flexDirection = 'column';
-        rightHalf.style.gap = '2px';
-        rightHalf.style.overflow = 'visible';
-        rightHalf.style.fontFamily = '"Playfair Display", Georgia, serif';
+                const rightHalf = document.createElement('div');
+                rightHalf.style.width = '45%';
+                rightHalf.style.padding = '22px 20px 30px 20px';
+                rightHalf.style.display = 'flex';
+                rightHalf.style.flexDirection = 'column';
+                rightHalf.style.gap = '2px';
+                rightHalf.style.overflow = 'hidden';
+                rightHalf.style.fontFamily = '"Playfair Display", Georgia, serif';
 
-        const title = document.createElement('div');
-        title.style.fontSize = '24px';
-        title.style.fontWeight = '700';
-        title.style.color = titleColor;
-        title.style.borderBottom = `2px solid ${borderColor}`;
-        title.style.paddingBottom = '8px';
-        title.style.marginBottom = '8px';
-        title.style.letterSpacing = '6px';
-        title.style.fontFamily = '"Playfair Display", Georgia, serif';
-        title.textContent = '⚓ ФИКБУХТА';
-        rightHalf.appendChild(title);
+                const title = document.createElement('div');
+                title.style.fontSize = '24px';
+                title.style.fontWeight = '700';
+                title.style.color = titleColor;
+                title.style.borderBottom = `2px solid ${borderColor}`;
+                title.style.paddingBottom = '8px';
+                title.style.marginBottom = '8px';
+                title.style.letterSpacing = '6px';
+                title.style.fontFamily = '"Playfair Display", Georgia, serif';
+                title.textContent = '⚓ ФИКБУХТА';
+                rightHalf.appendChild(title);
 
-        function createTextNode(text) {
-            const div = document.createElement('div');
-            div.style.whiteSpace = 'pre-wrap';
-            div.style.wordBreak = 'break-word';
-            div.style.fontFamily = '"Playfair Display", Georgia, serif';
-            div.textContent = text || '—';
-            return div;
-        }
+                function createTextNode(text) {
+                    const div = document.createElement('div');
+                    div.style.whiteSpace = 'pre-wrap';
+                    div.style.wordBreak = 'break-word';
+                    div.style.fontFamily = '"Playfair Display", Georgia, serif';
+                    div.textContent = text || '—';
+                    return div;
+                }
 
-        // ЛИЧНОЕ
-        const sec1 = document.createElement('div');
-        sec1.style.fontSize = '13px';
-        sec1.style.fontWeight = '700';
-        sec1.style.color = titleColor;
-        sec1.style.letterSpacing = '3px';
-        sec1.style.opacity = '0.7';
-        sec1.style.borderBottom = `1px solid ${borderColor}`;
-        sec1.style.paddingBottom = '4px';
-        sec1.style.marginTop = '6px';
-        sec1.style.fontFamily = '"Playfair Display", Georgia, serif';
-        sec1.textContent = '▸ ЛИЧНОЕ';
-        rightHalf.appendChild(sec1);
+                const sections = [
+                    { name: '▸ ЛИЧНОЕ', fields: [
+                        ['Имя', d.name],
+                        ['Возраст', d.age],
+                        ['Вид', d.species],
+                        ['Пол', d.gender],
+                        ['Занятие', d.job]
+                    ]},
+                    { name: '▸ ПРЕИМУЩЕСТВА', fields: [
+                        ['', d.strengths]
+                    ]},
+                    { name: '▸ СЛАБОСТЬ', fields: [
+                        ['', d.weaknesses]
+                    ]},
+                    { name: '▸ ХАРАКТЕР', fields: [
+                        ['', d.personality]
+                    ]},
+                    { name: '▸ СПОСОБНОСТИ', fields: [
+                        ['', d.skills]
+                    ]},
+                    { name: '▸ БЛИЗКИЕ', fields: [
+                        ['', d.family]
+                    ]}
+                ];
 
-        const nameRow = document.createElement('div');
-        nameRow.style.display = 'grid';
-        nameRow.style.gridTemplateColumns = '70px 1fr';
-        nameRow.style.gap = '6px';
-        nameRow.style.fontSize = '14px';
-        nameRow.style.padding = '3px 0';
-        nameRow.style.alignItems = 'start';
-        nameRow.style.fontFamily = '"Playfair Display", Georgia, serif';
-        const nameLbl = document.createElement('span');
-        nameLbl.style.fontWeight = '700';
-        nameLbl.style.color = labelColor;
-        nameLbl.style.textAlign = 'left';
-        nameLbl.style.fontFamily = '"Playfair Display", Georgia, serif';
-        nameLbl.textContent = 'Имя';
-        const nameVal = createTextNode(d.name);
-        nameRow.appendChild(nameLbl);
-        nameRow.appendChild(nameVal);
-        rightHalf.appendChild(nameRow);
+                sections.forEach((section, index) => {
+                    const secTitle = document.createElement('div');
+                    secTitle.style.fontSize = '13px';
+                    secTitle.style.fontWeight = '700';
+                    secTitle.style.color = titleColor;
+                    secTitle.style.letterSpacing = '3px';
+                    secTitle.style.opacity = '0.7';
+                    secTitle.style.borderBottom = `1px solid ${borderColor}`;
+                    secTitle.style.paddingBottom = '4px';
+                    secTitle.style.marginTop = index === 0 ? '0px' : '8px';
+                    secTitle.style.fontFamily = '"Playfair Display", Georgia, serif';
+                    secTitle.textContent = section.name;
+                    rightHalf.appendChild(secTitle);
 
-        // Возраст | Пол
-        const rowAgeGender = document.createElement('div');
-        rowAgeGender.style.display = 'grid';
-        rowAgeGender.style.gridTemplateColumns = '1fr 1fr';
-        rowAgeGender.style.gap = '12px';
-        rowAgeGender.style.fontSize = '14px';
-        rowAgeGender.style.padding = '3px 0';
-        rowAgeGender.style.fontFamily = '"Playfair Display", Georgia, serif';
-
-        const ageRow = document.createElement('div');
-        ageRow.style.display = 'grid';
-        ageRow.style.gridTemplateColumns = '70px 1fr';
-        ageRow.style.gap = '6px';
-        ageRow.style.alignItems = 'start';
-        ageRow.style.fontFamily = '"Playfair Display", Georgia, serif';
-        const ageLbl = document.createElement('span');
-        ageLbl.style.fontWeight = '700';
-        ageLbl.style.color = labelColor;
-        ageLbl.style.textAlign = 'left';
-        ageLbl.style.fontFamily = '"Playfair Display", Georgia, serif';
-        ageLbl.textContent = 'Возраст';
-        const ageVal = createTextNode(d.age);
-        ageRow.appendChild(ageLbl);
-        ageRow.appendChild(ageVal);
-        rowAgeGender.appendChild(ageRow);
-
-        const genderRow = document.createElement('div');
-        genderRow.style.display = 'grid';
-        genderRow.style.gridTemplateColumns = '70px 1fr';
-        genderRow.style.gap = '6px';
-        genderRow.style.alignItems = 'start';
-        genderRow.style.fontFamily = '"Playfair Display", Georgia, serif';
-        const genderLbl = document.createElement('span');
-        genderLbl.style.fontWeight = '700';
-        genderLbl.style.color = labelColor;
-        genderLbl.style.textAlign = 'left';
-        genderLbl.style.fontFamily = '"Playfair Display", Georgia, serif';
-        genderLbl.textContent = 'Пол';
-        const genderVal = createTextNode(d.gender);
-        genderRow.appendChild(genderLbl);
-        genderRow.appendChild(genderVal);
-        rowAgeGender.appendChild(genderRow);
-        rightHalf.appendChild(rowAgeGender);
-
-        // Вид
-        const speciesRow = document.createElement('div');
-        speciesRow.style.display = 'grid';
-        speciesRow.style.gridTemplateColumns = '70px 1fr';
-        speciesRow.style.gap = '6px';
-        speciesRow.style.fontSize = '14px';
-        speciesRow.style.padding = '3px 0';
-        speciesRow.style.alignItems = 'start';
-        speciesRow.style.fontFamily = '"Playfair Display", Georgia, serif';
-        const speciesLbl = document.createElement('span');
-        speciesLbl.style.fontWeight = '700';
-        speciesLbl.style.color = labelColor;
-        speciesLbl.style.textAlign = 'left';
-        speciesLbl.style.fontFamily = '"Playfair Display", Georgia, serif';
-        speciesLbl.textContent = 'Вид';
-        const speciesVal = createTextNode(d.species);
-        speciesRow.appendChild(speciesLbl);
-        speciesRow.appendChild(speciesVal);
-        rightHalf.appendChild(speciesRow);
-
-        // Занятие
-        const jobRow = document.createElement('div');
-        jobRow.style.display = 'grid';
-        jobRow.style.gridTemplateColumns = '70px 1fr';
-        jobRow.style.gap = '6px';
-        jobRow.style.fontSize = '14px';
-        jobRow.style.padding = '3px 0';
-        jobRow.style.alignItems = 'start';
-        jobRow.style.fontFamily = '"Playfair Display", Georgia, serif';
-        const jobLbl = document.createElement('span');
-        jobLbl.style.fontWeight = '700';
-        jobLbl.style.color = labelColor;
-        jobLbl.style.textAlign = 'left';
-        jobLbl.style.fontFamily = '"Playfair Display", Georgia, serif';
-        jobLbl.textContent = 'Занятие';
-        const jobVal = createTextNode(d.job);
-        jobRow.appendChild(jobLbl);
-        jobRow.appendChild(jobVal);
-        rightHalf.appendChild(jobRow);
-
-        // ПРЕИМУЩЕСТВА
-        const sec2 = document.createElement('div');
-        sec2.style.fontSize = '13px';
-        sec2.style.fontWeight = '700';
-        sec2.style.color = titleColor;
-        sec2.style.letterSpacing = '3px';
-        sec2.style.opacity = '0.7';
-        sec2.style.borderBottom = `1px solid ${borderColor}`;
-        sec2.style.paddingBottom = '4px';
-        sec2.style.marginTop = '8px';
-        sec2.style.fontFamily = '"Playfair Display", Georgia, serif';
-        sec2.textContent = '▸ ПРЕИМУЩЕСТВА';
-        rightHalf.appendChild(sec2);
-        const strengthsVal = createTextNode(d.strengths);
-        strengthsVal.style.fontSize = '14px';
-        strengthsVal.style.padding = '3px 0';
-        strengthsVal.style.fontFamily = '"Playfair Display", Georgia, serif';
-        rightHalf.appendChild(strengthsVal);
-
-        // СЛАБОСТЬ
-        const sec3 = document.createElement('div');
-        sec3.style.fontSize = '13px';
-        sec3.style.fontWeight = '700';
-        sec3.style.color = titleColor;
-        sec3.style.letterSpacing = '3px';
-        sec3.style.opacity = '0.7';
-        sec3.style.borderBottom = `1px solid ${borderColor}`;
-        sec3.style.paddingBottom = '4px';
-        sec3.style.marginTop = '8px';
-        sec3.style.fontFamily = '"Playfair Display", Georgia, serif';
-        sec3.textContent = '▸ СЛАБОСТЬ';
-        rightHalf.appendChild(sec3);
-        const weaknessesVal = createTextNode(d.weaknesses);
-        weaknessesVal.style.fontSize = '14px';
-        weaknessesVal.style.padding = '3px 0';
-        weaknessesVal.style.fontFamily = '"Playfair Display", Georgia, serif';
-        rightHalf.appendChild(weaknessesVal);
-
-        // ХАРАКТЕР
-        const sec4 = document.createElement('div');
-        sec4.style.fontSize = '13px';
-        sec4.style.fontWeight = '700';
-        sec4.style.color = titleColor;
-        sec4.style.letterSpacing = '3px';
-        sec4.style.opacity = '0.7';
-        sec4.style.borderBottom = `1px solid ${borderColor}`;
-        sec4.style.paddingBottom = '4px';
-        sec4.style.marginTop = '8px';
-        sec4.style.fontFamily = '"Playfair Display", Georgia, serif';
-        sec4.textContent = '▸ ХАРАКТЕР';
-        rightHalf.appendChild(sec4);
-        const personalityVal = createTextNode(d.personality);
-        personalityVal.style.fontSize = '14px';
-        personalityVal.style.padding = '3px 0';
-        personalityVal.style.fontFamily = '"Playfair Display", Georgia, serif';
-        rightHalf.appendChild(personalityVal);
-
-        // СПОСОБНОСТИ
-        const sec5 = document.createElement('div');
-        sec5.style.fontSize = '13px';
-        sec5.style.fontWeight = '700';
-        sec5.style.color = titleColor;
-        sec5.style.letterSpacing = '3px';
-        sec5.style.opacity = '0.7';
-        sec5.style.borderBottom = `1px solid ${borderColor}`;
-        sec5.style.paddingBottom = '4px';
-        sec5.style.marginTop = '8px';
-        sec5.style.fontFamily = '"Playfair Display", Georgia, serif';
-        sec5.textContent = '▸ СПОСОБНОСТИ';
-        rightHalf.appendChild(sec5);
-        const skillsVal = createTextNode(d.skills);
-        skillsVal.style.fontSize = '14px';
-        skillsVal.style.padding = '3px 0';
-        skillsVal.style.fontFamily = '"Playfair Display", Georgia, serif';
-        rightHalf.appendChild(skillsVal);
-
-        // БЛИЗКИЕ
-        const sec6 = document.createElement('div');
-        sec6.style.fontSize = '13px';
-        sec6.style.fontWeight = '700';
-        sec6.style.color = titleColor;
-        sec6.style.letterSpacing = '3px';
-        sec6.style.opacity = '0.7';
-        sec6.style.borderBottom = `1px solid ${borderColor}`;
-        sec6.style.paddingBottom = '4px';
-        sec6.style.marginTop = '8px';
-        sec6.style.fontFamily = '"Playfair Display", Georgia, serif';
-        sec6.textContent = '▸ БЛИЗКИЕ';
-        rightHalf.appendChild(sec6);
-        const familyVal = createTextNode(d.family);
-        familyVal.style.fontSize = '14px';
-        familyVal.style.padding = '3px 0';
-        familyVal.style.fontFamily = '"Playfair Display", Georgia, serif';
-        rightHalf.appendChild(familyVal);
-
-        // Цитата
-        const quote = document.createElement('div');
-        quote.style.fontStyle = 'italic';
-        quote.style.fontSize = '16px';
-        quote.style.borderLeft = `3px solid ${borderColor}`;
-        quote.style.paddingLeft = '15px';
-        quote.style.margin = '6px 0';
-        quote.style.whiteSpace = 'pre-wrap';
-        quote.style.fontFamily = '"Playfair Display", Georgia, serif';
-        quote.textContent = `«${d.quote || '—'}»`;
-        rightHalf.appendChild(quote);
-
-        // История
-        const history = document.createElement('div');
-        history.style.marginTop = '4px';
-        history.style.paddingTop = '6px';
-        history.style.borderTop = `1px solid ${borderColor}`;
-        history.style.fontSize = '13px';
-        history.style.wordBreak = 'break-word';
-        history.style.whiteSpace = 'pre-wrap';
-        history.style.fontFamily = '"Playfair Display", Georgia, serif';
-        history.innerHTML = `<b>История:</b> ${d.backstory || '—'}`;
-        rightHalf.appendChild(history);
-
-        // Футер со ссылкой
-        const footer = document.createElement('div');
-        footer.style.textAlign = 'center';
-        footer.style.marginTop = '15px';
-        footer.style.paddingTop = '12px';
-        footer.style.borderTop = `1px solid ${borderColor}`;
-        footer.style.fontSize = '12px';
-        footer.style.opacity = '0.7';
-        footer.style.fontFamily = '"Playfair Display", Georgia, serif';
-        footer.textContent = 'https://vk.ru/fickbuhta ✦ создай своего персонажа';
-        rightHalf.appendChild(footer);
-
-        exportDiv.appendChild(leftHalf);
-        exportDiv.appendChild(rightHalf);
-
-        document.body.appendChild(exportDiv);
-        
-        // === УВЕЛИЧЕННАЯ ЗАДЕРЖКА ДЛЯ ЗАГРУЗКИ ШРИФТА ===
-        await new Promise(r => setTimeout(r, 500));
-
-        const actualHeight = exportDiv.scrollHeight;
-        const canvas = await html2canvas(exportDiv, {
-            scale: 2.5,
-            backgroundColor: bgColor,
-            useCORS: true,
-            logging: false,
-            height: actualHeight,
-            windowHeight: actualHeight,
-            // === ФИКС ШРИФТА: принудительный рендер ===
-            onclone: function(doc) {
-                // Принудительно применяем шрифт ко всем элементам
-                doc.querySelectorAll('*').forEach(el => {
-                    el.style.fontFamily = '"Playfair Display", Georgia, serif';
+                    section.fields.forEach(([label, value]) => {
+                        if (label) {
+                            const row = document.createElement('div');
+                            row.style.display = 'grid';
+                            row.style.gridTemplateColumns = '70px 1fr';
+                            row.style.gap = '6px';
+                            row.style.fontSize = '14px';
+                            row.style.padding = '3px 0';
+                            row.style.alignItems = 'start';
+                            row.style.fontFamily = '"Playfair Display", Georgia, serif';
+                            
+                            const lbl = document.createElement('span');
+                            lbl.style.fontWeight = '700';
+                            lbl.style.color = labelColor;
+                            lbl.style.textAlign = 'left';
+                            lbl.style.fontFamily = '"Playfair Display", Georgia, serif';
+                            lbl.textContent = label;
+                            
+                            const val = createTextNode(value);
+                            row.appendChild(lbl);
+                            row.appendChild(val);
+                            rightHalf.appendChild(row);
+                        } else {
+                            const val = createTextNode(value);
+                            val.style.fontSize = '14px';
+                            val.style.padding = '3px 0';
+                            val.style.fontFamily = '"Playfair Display", Georgia, serif';
+                            rightHalf.appendChild(val);
+                        }
+                    });
                 });
+
+                const quote = document.createElement('div');
+                quote.style.fontStyle = 'italic';
+                quote.style.fontSize = '16px';
+                quote.style.borderLeft = `3px solid ${borderColor}`;
+                quote.style.paddingLeft = '15px';
+                quote.style.margin = '6px 0';
+                quote.style.whiteSpace = 'pre-wrap';
+                quote.style.fontFamily = '"Playfair Display", Georgia, serif';
+                quote.textContent = `«${d.quote || '—'}»`;
+                rightHalf.appendChild(quote);
+
+                const history = document.createElement('div');
+                history.style.marginTop = '4px';
+                history.style.paddingTop = '6px';
+                history.style.borderTop = `1px solid ${borderColor}`;
+                history.style.fontSize = '13px';
+                history.style.wordBreak = 'break-word';
+                history.style.whiteSpace = 'pre-wrap';
+                history.style.fontFamily = '"Playfair Display", Georgia, serif';
+                history.innerHTML = `<b>История:</b> ${d.backstory || '—'}`;
+                rightHalf.appendChild(history);
+
+                // === ФУТЕР СО ССЫЛКОЙ ===
+                const footer = document.createElement('div');
+                footer.style.textAlign = 'center';
+                footer.style.marginTop = '18px';
+                footer.style.paddingTop = '14px';
+                footer.style.paddingBottom = '4px';
+                footer.style.borderTop = `1px solid ${borderColor}`;
+                footer.style.fontSize = '12px';
+                footer.style.opacity = '0.7';
+                footer.style.fontFamily = '"Playfair Display", Georgia, serif';
+                footer.textContent = 'https://vk.ru/fickbuhta ✦ создай своего персонажа';
+                rightHalf.appendChild(footer);
+
+                exportDiv.appendChild(leftHalf);
+                exportDiv.appendChild(rightHalf);
+
+                document.body.appendChild(exportDiv);
+                await new Promise(r => setTimeout(r, 600));
+
+                const actualHeight = exportDiv.scrollHeight + 50;
+
+                const canvas = await html2canvas(exportDiv, {
+                    scale: 2.5,
+                    backgroundColor: bgColor,
+                    useCORS: true,
+                    logging: false,
+                    height: actualHeight,
+                    width: 800,
+                    windowHeight: actualHeight,
+                    windowWidth: 800,
+                    onclone: function(doc) {
+                        doc.querySelectorAll('*').forEach(el => {
+                            el.style.fontFamily = '"Playfair Display", Georgia, serif';
+                        });
+                    }
+                });
+                document.body.removeChild(exportDiv);
+
+                const link = document.createElement('a');
+                const safeName = (d.name || 'персонаж').replace(/[^a-zа-я0-9]/gi, '_').substring(0, 30);
+                link.download = `карточка_${safeName}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+
+            } catch(e) {
+                console.error(e);
+                alert('Ошибка при создании картинки: ' + e.message);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
             }
         });
-        document.body.removeChild(exportDiv);
-
-        const link = document.createElement('a');
-        const safeName = (d.name || 'персонаж').replace(/[^a-zа-я0-9]/gi, '_').substring(0, 30);
-        link.download = `карточка_${safeName}.png`;
-        link.href = canvas.toDataURL();
-        link.click();
-
-    } catch(e) {
-        console.error(e);
-        alert('Ошибка при создании картинки: ' + e.message);
-    } finally {
-        btn.textContent = originalText;
-        btn.disabled = false;
-    }
-});
 
         // ============================================================
         // 11. ИНИЦИАЛИЗАЦИЯ
