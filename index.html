@@ -1618,7 +1618,7 @@
             URL.revokeObjectURL(link.href);
         });
 
-        // ============================================================
+                // ============================================================
         // 12. ЭКСПОРТ В PNG (с поддержкой обоих видов, точная копия предпросмотра)
         // ============================================================
         document.getElementById('exportDossierBtn').addEventListener('click', async () => {
@@ -1628,6 +1628,22 @@
             btn.disabled = true;
 
             try {
+                // Дожидаемся загрузки шрифтов — критично для GitHub Pages,
+                // где Google Fonts грузится медленнее, чем локально из кэша.
+                if (document.fonts && document.fonts.ready) {
+                    try { await document.fonts.ready; } catch(e) {}
+                }
+                // Подстраховка: явно просим браузер загрузить нужные начертания
+                if (document.fonts && document.fonts.load) {
+                    try {
+                        await Promise.all([
+                            document.fonts.load('400 16px "Playfair Display"'),
+                            document.fonts.load('700 16px "Playfair Display"'),
+                            document.fonts.load('italic 400 16px "Playfair Display"')
+                        ]);
+                    } catch(e) {}
+                }
+
                 const currentTheme = localStorage.getItem('fickbuhta_theme') || 'sapphire';
                 
                 if (currentTheme === 'custom') {
@@ -1939,15 +1955,23 @@
 
                     // Вставляем exportDiv в DOM, чтобы измерить реальные размеры
                     document.body.appendChild(exportDiv);
+
+                    // Ждём загрузки шрифтов ЕЩЁ РАЗ — теперь уже для экспортного DOM.
+                    if (document.fonts && document.fonts.ready) {
+                        try { await document.fonts.ready; } catch(e) {}
+                    }
+
+                    // Даём браузеру время на layout (несколько кадров)
                     await new Promise(r => requestAnimationFrame(r));
-                    await new Promise(r => setTimeout(r, 50));
+                    await new Promise(r => requestAnimationFrame(r));
+                    await new Promise(r => setTimeout(r, 150));
 
                     // Измеряем реальную высоту фото-обёртки и строим фото
                     const wrapRect = photoWrap.getBoundingClientRect();
                     await buildPhotoElement(photoWrap, wrapRect.width, wrapRect.height);
 
-                    // Ждём загрузки шрифта/фото
-                    await new Promise(r => setTimeout(r, 400));
+                    // Ещё раз даём время на отрисовку картинки
+                    await new Promise(r => requestAnimationFrame(r));
 
                 } else {
                     // === СТАНДАРТНЫЙ ВИД — как было, ничего не ломаем ===
@@ -2025,6 +2049,13 @@
                 }
 
                 // === Рендер в canvas ===
+                // Финальная подстраховка — ждём шрифты и layout перед снимком.
+                if (document.fonts && document.fonts.ready) {
+                    try { await document.fonts.ready; } catch(e) {}
+                }
+                await new Promise(r => requestAnimationFrame(r));
+                await new Promise(r => setTimeout(r, 250));
+
                 const rect = exportDiv.getBoundingClientRect();
                 const scrollHeight = exportDiv.scrollHeight;
                 const actualHeight = Math.max(rect.height, scrollHeight) + 40;
